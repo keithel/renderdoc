@@ -25,7 +25,6 @@
 #include "CrashDialog.h"
 #include <QApplication>
 #include <QDateTime>
-#include <QDesktopWidget>
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QHttpMultiPart>

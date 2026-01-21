@@ -29,7 +29,6 @@
 #include <QListWidget>
 #include <QVarLengthArray>
 #include <QScrollBar>
-#include <QDesktopWidget>
 #include <QTextLayout>
 #include <QTextLine>
 #include <QLibrary>
@@ -614,6 +613,31 @@ QWidget *window(WindowID wid)
 {
 	return static_cast<QWidget *>(wid);
 }
+
+QRect ScreenRectangleForPoint(QPoint posGlobal)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+	const QScreen *screenForPoint = QGuiApplication::screenAt(posGlobal);
+#else
+	QScreen *screenForPoint = nullptr;
+    QVarLengthArray<const QScreen *, 8> visitedScreens;
+    for (const QScreen *screen : QGuiApplication::screens()) {
+        if (visitedScreens.contains(screen))
+            continue;
+
+        // The virtual siblings include the screen itself, so iterate directly
+        for (QScreen *sibling : screen->virtualSiblings()) {
+            if (sibling->geometry().contains(point))
+                screenForPoint = sibling;
+
+            visitedScreens.append(sibling);
+        }
+    }
+#endif
+	const QScreen *screen = screenForPoint ? screenForPoint : QGuiApplication::primaryScreen();
+	return screen->availableGeometry();
+}
+
 }
 
 Window::~Window() {}
@@ -651,8 +675,7 @@ void Window::SetPositionRelative(PRectangle rc, Window relativeTo)
 	ox += rc.left;
 	oy += rc.top;
 
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect rectDesk = desktop->availableGeometry(QPoint(ox, oy));
+	const QRect rectDesk = ScreenRectangleForPoint(QPoint(ox, oy));
 	/* do some corrections to fit into screen */
 	int sizex = rc.right - rc.left;
 	int sizey = rc.bottom - rc.top;
@@ -738,8 +761,7 @@ PRectangle Window::GetMonitorRect(Point pt)
 {
 	QPoint originGlobal = window(wid)->mapToGlobal(QPoint(0, 0));
 	QPoint posGlobal = window(wid)->mapToGlobal(QPoint(pt.x, pt.y));
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect rectScreen = desktop->availableGeometry(posGlobal);
+	QRect rectScreen = ScreenRectangleForPoint(posGlobal);
 	rectScreen.translate(-originGlobal.x(), -originGlobal.y());
 	return PRectangle(rectScreen.left(), rectScreen.top(),
 	        rectScreen.right(), rectScreen.bottom());
