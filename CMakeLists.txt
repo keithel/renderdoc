@@ -1,5 +1,5 @@
 if (NOT CMAKE_VERSION VERSION_LESS "4.0")
-  cmake_minimum_required(VERSION 3.5)
+  cmake_minimum_required(VERSION 3.10)
 else()
   cmake_minimum_required(VERSION 2.8.12)
 endif()
@@ -30,7 +30,7 @@ if(BUILD_ANDROID)
         ERROR_VARIABLE _output
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_STRIP_TRAILING_WHITESPACE)
-    
+
     if(NOT _result AND _output MATCHES "version \"([0-9]+).([0-9]+)")
         message(STATUS "Java in JAVA_HOME is ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
     else()
@@ -74,7 +74,7 @@ if(BUILD_ANDROID)
     if(NOT ANDROID_PLATFORM)
         set(ANDROID_PLATFORM "android-21")
     endif()
-    
+
     # default to libc++_static as the other options can cause crashes
     if(NOT ANDROID_STL)
         set(ANDROID_STL "c++_static")
@@ -185,7 +185,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git/HEAD")
     configure_file("${CMAKE_SOURCE_DIR}/.git/HEAD" "${CMAKE_BINARY_DIR}/git_HEAD" COPYONLY)
 
     # in addition, if HEAD is a ref, do the same on the file it's pointing to (since HEAD won't change for commits to the current branch)
-    # if we change branch then this will correspondingly 
+    # if we change branch then this will correspondingly
     file(READ ${CMAKE_SOURCE_DIR}/.git/HEAD HEAD_CONTENTS)
     string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
 
@@ -284,7 +284,7 @@ if(INTERNAL_SELF_CAPTURE)
     message(STATUS "Disabling GL/GLES for self-capture")
     set(ENABLE_GLES OFF CACHE BOOL "" FORCE)
     set(ENABLE_EGL OFF CACHE BOOL "" FORCE)
-    
+
     message(STATUS "Disabling qrenderdoc & python modules for self-capture")
     set(ENABLE_QRENDERDOC OFF CACHE BOOL "" FORCE)
     set(ENABLE_PYRENDERDOC OFF CACHE BOOL "" FORCE)
@@ -375,11 +375,11 @@ if(STRIP_ANDROID_LIBRARY AND BUILD_ANDROID AND RELEASE_MODE)
     message(STATUS "libraries will be stripped with ${ANDROID_STRIP_TOOL}")
 endif()
 
-# Build as C++14
+# Build as C++17
 if (CMAKE_VERSION VERSION_LESS "3.1")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 else ()
-    set (CMAKE_CXX_STANDARD 14)
+    set (CMAKE_CXX_STANDARD 17)
     set (CMAKE_CXX_STANDARD_REQUIRED ON)
 endif ()
 
@@ -411,11 +411,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11.0.9)
             list(APPEND warning_flags -Wno-mismatched-new-delete)
         endif()
-        
+
         if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11.9)
             list(APPEND warning_flags -Wno-unused-value)
         endif()
-        
+
         if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 13.9)
             list(APPEND warning_flags -Wno-cast-user-defined)
         endif()

@@ -1,16 +1,11 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2015-03-18T20:10:50
-#
-#-------------------------------------------------
-
-QT       += core gui widgets svg network
+QT += core gui widgets svg network
+QT += waylandclient_private
 
 CONFIG   += silent
 
-lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5.6; found $$[QT_VERSION]")
+lessThan(QT_MAJOR_VERSION, 6): error("requires Qt 6.2; found $$[QT_VERSION]")
 
-equals(QT_MAJOR_VERSION, 5): lessThan(QT_MINOR_VERSION, 6): error("requires Qt 5.6; found $$[QT_VERSION]")
+equals(QT_MAJOR_VERSION, 6): lessThan(QT_MINOR_VERSION, 2): error("requires Qt 6.2; found $$[QT_VERSION]")
 
 TARGET = qrenderdoc
 TEMPLATE = app
@@ -38,10 +33,25 @@ DEFINES += QT_NO_DEPRECATED_WARNINGS
 # HA HA good joke, QT_NO_DEPRECATED_WARNINGS only covers SOME warnings, not all
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
+isEmpty(CMAKE_DIR) {
+    error("When run from outside CMake, please set the Build Environment Variable CMAKE_DIR to point to your CMake build root. In Qt Creator add CMAKE_DIR=/path/to/renderdoc/build under 'Additional arguments' in the qmake Build Step. If running qmake directly, add CMAKE_DIR=/path/to/renderdoc/build/ to the command line.")
+}
+
+# This apparently was never used on Windows builds before -- so it probably needs work to get it working properly on Windows.
+include($$CMAKE_DIR/qrenderdoc/qrenderdoc_cmake.pri)
+
+# Add the SWIG files that were generated in cmake
+SOURCES += $$CMAKE_DIR/qrenderdoc/renderdoc_python.cxx
+SOURCES += $$CMAKE_DIR/qrenderdoc/qrenderdoc_python.cxx
+
+CONFIG += warn_off
+CONFIG += c++17
+
 # Different output folders per platform
 win32 {
-
+    # This is specific to the Windows resource compiler
 	RC_INCLUDEPATH = $$_PRO_FILE_PWD_/../renderdoc/api/replay
+    # Path to the windows-only resource file.
 	RC_FILE = Resources/qrenderdoc.rc
 
 	# generate pdb files even in release
@@ -57,69 +67,27 @@ win32 {
 		Release:DESTDIR = $$_PRO_FILE_PWD_/../x64/Release
 	}
 
-	# Run SWIG here, since normally we run it from VS
-	swig.name = SWIG ${QMAKE_FILE_IN}
-	swig.input = SWIGSOURCES
-	swig.output = ${QMAKE_FILE_BASE}_python.cxx
-	swig.commands = $$_PRO_FILE_PWD_/3rdparty/swig/swig.exe -v -Wextra -Werror -O -interface ${QMAKE_FILE_BASE} -c++ -python -modern -modernargs -enumclass -fastunpack -py3 -builtin -I$$_PRO_FILE_PWD_ -I$$_PRO_FILE_PWD_/../renderdoc/api/replay -outdir . -o ${QMAKE_FILE_BASE}_python.cxx ${QMAKE_FILE_IN}
-	swig.CONFIG += target_predeps
-	swig.variable_out = GENERATED_SOURCES
-	silent:swig.commands = @echo SWIG ${QMAKE_FILE_IN} && $$swig.commands
-	QMAKE_EXTRA_COMPILERS += swig
-
 	# add qrc file with qt.conf
 	RESOURCES += Resources/qtconf.qrc
-
-	SWIGSOURCES += Code/pyrenderdoc/renderdoc.i
-	SWIGSOURCES += Code/pyrenderdoc/qrenderdoc.i
-
-	# Include and link against python
-	INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/python/include
-	!contains(QMAKE_TARGET.arch, x86_64) {
-		LIBS += $$_PRO_FILE_PWD_/3rdparty/python/Win32/python36.lib
-	} else {
-		LIBS += $$_PRO_FILE_PWD_/3rdparty/python/x64/python36.lib
-	}
-
-	# Include and link against PySide2
-	exists( $$_PRO_FILE_PWD_/3rdparty/pyside/include/PySide2/pyside.h ) {
-		DEFINES += PYSIDE2_ENABLED=1
-		INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/pyside/include/shiboken2
-		INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/pyside/include/PySide2
-		INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/pyside/include/PySide2/QtCore
-		INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/pyside/include/PySide2/QtGui
-		INCLUDEPATH += $$_PRO_FILE_PWD_/3rdparty/pyside/include/PySide2/QtWidgets
-		!contains(QMAKE_TARGET.arch, x86_64) {
-			LIBS += $$_PRO_FILE_PWD_/3rdparty/pyside/Win32/shiboken2.lib
-		} else {
-			LIBS += $$_PRO_FILE_PWD_/3rdparty/pyside/x64/shiboken2.lib
-		}
-	}
 
 	LIBS += user32.lib
 
 	# Link against the core library
 	LIBS += $$DESTDIR/renderdoc.lib
 
-	# Link against the version library
+	# Link against the version library - windows specific -- there is only a visual studio vcxproj for it.
 	LIBS += $$DESTDIR/version.lib
 
-	QMAKE_CXXFLAGS_WARN_ON -= -w34100 
+	QMAKE_CXXFLAGS_WARN_ON -= -w34100
 	DEFINES += RENDERDOC_PLATFORM_WIN32
 
 } else {
-	isEmpty(CMAKE_DIR) {
-		error("When run from outside CMake, please set the Build Environment Variable CMAKE_DIR to point to your CMake build root. In Qt Creator add CMAKE_DIR=/path/to/renderdoc/build under 'Additional arguments' in the qmake Build Step. If running qmake directly, add CMAKE_DIR=/path/to/renderdoc/build/ to the command line.")
-	}
-
 	DESTDIR=$$CMAKE_DIR/bin
 
 	# Archlinux broke Qt builds by forcing on lto, so we have to re-override that here
 	CONFIG -= ltcg
 
-	include($$CMAKE_DIR/qrenderdoc/qrenderdoc_cmake.pri)
-
-	# Temp files into .obj
+	# Temp files into .obj -- is this really unix/non-windows specific?
 	MOC_DIR = .obj
 	UI_DIR = .obj
 	RCC_DIR = .obj
@@ -129,26 +97,22 @@ win32 {
 	LIBS += -lrenderdoc
 	QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\',-rpath,\'\$$ORIGIN/../lib'$$LIB_SUFFIX'/'$$LIB_SUBFOLDER_TRAIL_SLASH'\''
 
-	# Add the SWIG files that were generated in cmake
-	SOURCES += $$CMAKE_DIR/qrenderdoc/renderdoc_python.cxx
-	SOURCES += $$CMAKE_DIR/qrenderdoc/qrenderdoc_python.cxx
-
-	CONFIG += warn_off
-	CONFIG += c++14
 	QMAKE_CFLAGS_WARN_OFF -= -w
 	QMAKE_CXXFLAGS_WARN_OFF -= -w
+
+    DEFINES += RENDERDOC_PLATFORM_POSIX
 
 	macx: {
 		SOURCES += Code/AppleUtils.mm
 
 		LIBS += -framework Cocoa -framework QuartzCore
 
-		DEFINES += RENDERDOC_PLATFORM_POSIX RENDERDOC_PLATFORM_APPLE
+		DEFINES += RENDERDOC_PLATFORM_APPLE
 		ICON = $$OSX_ICONFILE
 
 		# add qrc file with qt.conf
 		RESOURCES += Resources/qtconf.qrc
-		
+
 		librd.files = $$files($$DESTDIR/../lib/librenderdoc.dylib)
 		librd.path = Contents/lib
 		QMAKE_BUNDLE_DATA += librd
@@ -158,8 +122,7 @@ win32 {
 		QMAKE_POST_LINK += ln -sf $$[QT_INSTALL_PLUGINS] $${QTPLUGINS_PATH} ;
 		QMAKE_POST_LINK += sh $$_PRO_FILE_PWD_/../util/set_plist_version.sh $${RENDERDOC_VERSION}.0 $${INFO_PLIST_PATH}
 	} else {
-		QT += x11extras
-		DEFINES += RENDERDOC_PLATFORM_POSIX RENDERDOC_PLATFORM_LINUX RENDERDOC_WINDOWING_XLIB RENDERDOC_WINDOWING_XCB
+		DEFINES += RENDERDOC_PLATFORM_LINUX RENDERDOC_WINDOWING_XLIB RENDERDOC_WINDOWING_XCB
 		QMAKE_LFLAGS += '-Wl,--no-as-needed -rdynamic'
 	}
 }
@@ -254,6 +217,7 @@ SOURCES += Code/qrenderdoc.cpp \
     Windows/Dialogs/AxisMappingDialog.cpp \
     Windows/Dialogs/CameraControlsDialog.cpp \
     Windows/Dialogs/ProjectionGuessDialog.cpp
+
 HEADERS += Code/CaptureContext.h \
     Code/qprocessinfo.h \
     Code/ReplayManager.h \
@@ -342,6 +306,7 @@ HEADERS += Code/CaptureContext.h \
     Windows/Dialogs/AxisMappingDialog.h \
     Windows/Dialogs/CameraControlsDialog.h \
     Windows/Dialogs/ProjectionGuessDialog.h
+
 FORMS    += Windows/Dialogs/AboutDialog.ui \
     Windows/Dialogs/CrashDialog.ui \
     Windows/Dialogs/UpdateDialog.ui \
