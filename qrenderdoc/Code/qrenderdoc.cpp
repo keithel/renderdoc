@@ -27,6 +27,7 @@
 #include <QCommandLineParser>
 #include <QDir>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QStandardPaths>
@@ -182,10 +183,6 @@ void hideOption(QCommandLineOption &opt)
 
 int main(int argc, char *argv[])
 {
-  // call this as the very first thing - no-op on other platforms, but on linux it means
-  // XInitThreads will be called allowing driver access to xlib on multiple threads.
-  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-
   qInstallMessageHandler(sharedLogOutput);
 
   // there seems to be a persistent crash in QWidgetPrivate::subtractOpaqueSiblings where a widget
@@ -577,10 +574,14 @@ int main(int argc, char *argv[])
     {
       GlobalEnvironment env;
 #if defined(RENDERDOC_PLATFORM_LINUX)
-      env.xlibDisplay = QX11Info::display();
+      auto *x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+      if (x11App)
+        env.xlibDisplay = x11App->display();
+
       if(QGuiApplication::platformName() == lit("wayland"))
       {
-        env.waylandDisplay = (wl_display *)AccessWaylandPlatformInterface("display", NULL);
+        auto *waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+        env.waylandDisplay = waylandApp->display();
 
         QString warning =
             tr("Running directly on Wayland is NOT SUPPORTED and is likely to crash, hang, or "
@@ -592,6 +593,8 @@ int main(int argc, char *argv[])
 
         RDDialog::critical(NULL, tr("Wayland Qt platform not supported"), warning);
       }
+      else if (env.xlibDisplay == nullptr)
+        RDDialog::critical(NULL, tr("X11 Unavailable"), tr("X11 Application native interface not available, cannot get display"));
 #endif
       rdcarray<rdcstr> coreargs;
       if(!crashReportPath.isEmpty())

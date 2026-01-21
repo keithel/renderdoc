@@ -464,7 +464,7 @@ void FetchDefaultPrimaryKeys()
 #elif defined(Q_OS_LINUX)
 
 #include <dlfcn.h>
-#include <QX11Info>
+#include <QGuiApplication>
 
 // predeclare enough of xkbcommon, so we don't have a new build time dependency on it. Qt will load it for us
 extern "C" {
@@ -550,7 +550,13 @@ void FetchDefaultPrimaryKeys()
   // if both general and xcb symbols loaded, we're good to go
   if(dyn_xkb_context_new && dyn_xkb_x11_keymap_new_from_device)
   {
-    xcb_connection_t *connection = QX11Info::connection();
+    auto *x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
+    xcb_connection_t *connection = nullptr;
+    if (x11App)
+      connection = x11App->connection();
+    else
+      qCritical() << "Couldn't get XCB Connection";
+
     xkb_context *context = dyn_xkb_context_new(XKB_CONTEXT_NO_DEFAULT_INCLUDES);
     int core_device_id = dyn_xkb_x11_get_core_keyboard_device_id(connection);
     xkb_keymap *keymap = dyn_xkb_x11_keymap_new_from_device(context, connection, core_device_id,

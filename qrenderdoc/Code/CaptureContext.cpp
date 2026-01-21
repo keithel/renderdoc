@@ -29,6 +29,7 @@
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -36,6 +37,7 @@
 #include <QProgressDialog>
 #include <QRegularExpression>
 #include <QTimer>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include "Code/Resources.h"
 #include "Code/pyrenderdoc/PythonContext.h"
 #include "Windows/APIInspector.h"
@@ -1024,7 +1026,11 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
         if(sys == WindowingSystem::Wayland)
         {
           m_CurWinSystem = WindowingSystem::Wayland;
-          m_WaylandDisplay = (wl_display *)AccessWaylandPlatformInterface("display", NULL);
+          auto *waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+          if (waylandApp)
+            m_WaylandDisplay = waylandApp->display();
+          else
+            RDDialog::critical(NULL, tr("No Wayland Application native interface"), tr("Wayland Application native interface not available, cannot get display"));
           break;
         }
       }
@@ -1050,10 +1056,21 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
         }
       }
 
+      auto *x11App = qGuiApp->nativeInterface<QNativeInterface::QX11Application>();
       if(m_CurWinSystem == WindowingSystem::XCB)
-        m_XCBConnection = QX11Info::connection();
+      {
+        if (x11App)
+          m_XCBConnection = x11App->connection();
+        else
+          RDDialog::critical(NULL, tr("No XCB connection"), tr("Failed to get the XCB connection."));
+      }
       else
-        m_X11Display = QX11Info::display();
+      {
+        if (x11App)
+          m_X11Display = x11App->display();
+        else
+          RDDialog::critical(NULL, tr("No X11 display"), tr("Failed to get the X11 display."));
+      }
     }
 
 #elif defined(RENDERDOC_PLATFORM_APPLE)
@@ -2200,8 +2217,17 @@ WindowingData CaptureContext::CreateWindowingData(QWidget *window)
   {
     // we don't need this, we just need to force creation of a window handle
     window->winId();
-    wl_surface *surface =
-        (wl_surface *)AccessWaylandPlatformInterface("surface", window->windowHandle());
+    QWindow *qwindow = window->windowHandle();
+    auto *waylandWindow = qwindow->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if(waylandWindow == nullptr)
+    {
+      RDDialog::critical(NULL, tr("No wayland support"),
+                          tr("Replay doesn't support Wayland surfaces - check you compiled this "
+                            "build of RenderDoc with Wayland support enabled."));
+      return CreateWaylandWindowingData(nullptr, nullptr);
+    }
+
+    wl_surface *surface = waylandWindow->surface();
     return CreateWaylandWindowingData(m_WaylandDisplay, surface);
   }
   else if(m_CurWinSystem == WindowingSystem::XCB)
