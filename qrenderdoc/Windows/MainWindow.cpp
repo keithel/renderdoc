@@ -35,6 +35,7 @@
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QToolButton>
 #include <QToolTip>
 #include "Code/QRDUtils.h"

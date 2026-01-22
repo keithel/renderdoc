@@ -1593,7 +1593,7 @@ protected:
     int off = name.indexOf(QLatin1Char('<'));
     while(off >= 0 && off + 4 < name.size())
     {
-      if(name[off + 1] == QLatin1Char('/') || name.midRef(off, 5) == lit("<span"))
+      if(name[off + 1] == QLatin1Char('/') || QStringView(name).sliced(off, 5) == lit("<span"))
       {
         int end = name.indexOf(QLatin1Char('>'), off);
         name.remove(off, end - off + 1);

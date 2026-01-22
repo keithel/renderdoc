@@ -691,6 +691,8 @@ TextureViewer::TextureViewer(ICaptureContext &ctx, QWidget *parent)
 
   QObject::connect(ui->pixelContext, &CustomPaintWidget::keyPress, this,
                    &TextureViewer::render_keyPress);
+
+  m_CustomShaderTimer.start();
 }
 
 TextureViewer::~TextureViewer()

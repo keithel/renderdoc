@@ -28,7 +28,7 @@
 #include <QFrame>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QTime>
+#include <QElapsedTimer>
 #include "Code/Interface/QRDInterface.h"
 
 namespace Ui
@@ -371,8 +371,8 @@ private:
 
   rdcarray<DescriptorThumbUpdate> m_DescriptorThumbUpdates;
 
-  QTime m_CustomShaderTimer;
-  int m_CustomShaderWriteTime = 0;
+  QElapsedTimer m_CustomShaderTimer;
+  qint64 m_CustomShaderWriteTime = 0;
 
   QFileSystemWatcher *m_Watcher = NULL;
   QStringList m_CustomShadersBusy;

@@ -2516,8 +2516,8 @@ QString RDDialog::getExistingDirectory(QWidget *parent, const QString &caption, 
 {
   QFileDialog fd(parent, caption, dir, QString());
   fd.setAcceptMode(QFileDialog::AcceptOpen);
-  fd.setFileMode(QFileDialog::DirectoryOnly);
-  fd.setOptions(options);
+  fd.setFileMode(QFileDialog::Directory);
+  fd.setOptions(options | QFileDialog::ShowDirsOnly);
   show(&fd);
 
   if(fd.result() == QFileDialog::Accepted)
