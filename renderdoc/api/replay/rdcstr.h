@@ -35,6 +35,33 @@ void RENDERDOC_OutOfMemory(uint64_t sz);
 
 class rdcinflexiblestr;
 
+#if defined(RENDERDOC_QT_COMPAT)
+template <typename F>
+void visitAsUtf8(const QAnyStringView &in, F &&func)
+{
+  static_assert(std::is_invocable_r_v<void, F, const char* const, size_t>,
+                "Functor must match signature: void(const char* const, size_t)");
+  in.visit([&func](auto view) {
+    using T = decltype(view);
+
+    // zero-copy path for UTF-8
+    if constexpr (std::is_same_v<T, QUtf8StringView>)
+    {
+      func(view.data(), (size_t)view.size());
+    }
+    else
+    {
+      // transcode path for QStringView and Latin-1
+      QStringEncoder encoder(QStringConverter::Utf8);
+
+      // encoder(view) returns a DecodedData proxy convertible to QByteArray.
+      QByteArray decodedData = encoder(view);
+      func(decodedData.data(), (size_t)decodedData.size());
+    }
+  });
+}
+#endif
+
 // special type for storing literals. This allows functions to force callers to pass them literals
 class rdcliteral
 {
@@ -199,6 +226,14 @@ private:
       d.alloc.size = fixed_size;
     }
   }
+
+#if defined(RENDERDOC_QT_COMPAT)
+  void append(const QString &str)
+  {
+    QByteArray arr = str.toUtf8();
+    append(arr.data(), (size_t)arr.size());
+  }
+#endif
 
 public:
   // default constructor just 0-initialises
@@ -877,41 +912,102 @@ public:
 #if defined(RENDERDOC_QT_COMPAT)
   rdcstr(const QString &in)
   {
-    QByteArray arr = in.toUtf8();
     memset(&d, 0, sizeof(d));
+    QByteArray arr = in.toUtf8();
     assign(arr.data(), (size_t)arr.size());
+  }
+  rdcstr(const QAnyStringView &in)
+  {
+    memset(&d, 0, sizeof(d));
+    visitAsUtf8(in, [this](const char * const data , size_t len) {
+      assign(data, len);
+    });
   }
   rdcstr(const QChar &in)
   {
-    QByteArray arr = QString(in).toUtf8();
     memset(&d, 0, sizeof(d));
+    QByteArray arr = QString(in).toUtf8();
     assign(arr.data(), (size_t)arr.size());
   }
-  operator QString() const { return QString::fromUtf8(c_str(), (int32_t)size()); }
-  operator QVariant() const { return QVariant(QString::fromUtf8(c_str(), (int32_t)size())); }
-  rdcstr &operator+=(const QString &str)
+  explicit operator QString() const
+  {
+    return QString::fromUtf8(c_str(), (qsizetype)size());
+  }
+  operator QAnyStringView() const
+  {
+    return QUtf8StringView(c_str(), (qsizetype)size());
+  }
+  operator QVariant() const
+  {
+    return QVariant(QString::fromUtf8(c_str(), (qsizetype)size()));
+  }
+  rdcstr &operator=(const QString &str)
   {
     QByteArray arr = str.toUtf8();
-    append(arr.data(), (size_t)arr.size());
+    assign(arr.data(), (size_t)arr.size());
+    return *this;
+  }
+  rdcstr &operator=(const QAnyStringView &str)
+  {
+    visitAsUtf8(str, [this](const char * const data, size_t len) {
+      assign(data, len);
+    });
+    return *this;
+  }
+  rdcstr &operator+=(const QString &str)
+  {
+    append(str);
+    return *this;
+  }
+  rdcstr &operator+=(const QAnyStringView &str)
+  {
+    visitAsUtf8(str, [this](const char * const data, size_t len) {
+      append(data, len);
+    });
     return *this;
   }
   rdcstr operator+(const QString &str) const
   {
     rdcstr ret = *this;
-    ret += str;
+    ret.append(str);
+    return ret;
+  }
+  rdcstr operator+(const QAnyStringView &str) const
+  {
+    rdcstr ret = *this;
+    visitAsUtf8(str, [&ret](const char * const data, size_t len) {
+      ret.append(data, len);
+    });
     return ret;
   }
   rdcstr &operator+=(const QChar &chr)
   {
-    QByteArray arr = QString(chr).toUtf8();
-    append(arr.data(), (size_t)arr.size());
+    append(QString(chr));
     return *this;
   }
   rdcstr operator+(const QChar &chr) const
   {
     rdcstr ret = *this;
-    ret += QString(chr);
+    ret.append(QString(chr));
     return ret;
+  }
+  // bool operator==(const QString &str) const
+  // {
+  //   QStringEncoder encoder(QStringConverter::Utf8);
+  //   auto encoded = encoder(str);
+  //   return *this == encoded.data();
+  // }
+  // bool operator!=(const QString &str) const
+  // {
+  //   return !(*this == str);
+  // }
+  bool operator==(const QAnyStringView &o) const
+  {
+    QUtf8StringView thisView(c_str(), (qsizetype)size());
+    return QAnyStringView::compare(thisView, o) == 0;
+  }
+  bool operator!=(const QAnyStringView o) const {
+    return !(*this == o);
   }
 #endif
 };
@@ -938,12 +1034,24 @@ inline bool operator!=(const char *const left, const rdcstr &right)
 #if defined(RENDERDOC_QT_COMPAT)
 inline rdcstr operator+(const QString &left, const rdcstr &right)
 {
+  rdcstr ret(left);
+  ret.append(right);
+  return ret;
+}
+
+inline rdcstr operator+(const QAnyStringView &left, const rdcstr &right)
+{
   return rdcstr(left) += right;
 }
 
 inline rdcstr operator+(const QChar &left, const rdcstr &right)
 {
   return rdcstr(left) += right;
+}
+
+inline bool operator==(const QAnyStringView &left, const rdcstr &right)
+{
+  return right == left;
 }
 #endif
 
@@ -1130,8 +1238,21 @@ public:
   }
 
 #if defined(RENDERDOC_QT_COMPAT)
-  operator QString() const { return QString::fromUtf8(c_str(), (int32_t)size()); }
-  operator QVariant() const { return QVariant(QString::fromUtf8(c_str(), (int32_t)size())); }
+  explicit operator QString() const
+  {
+    QStringDecoder decoder(QStringConverter::Utf8);
+    return decoder(QByteArrayView(c_str(), (qsizetype)size()));
+  }
+  operator QAnyStringView() const
+  {
+    QStringDecoder decoder(QStringConverter::Utf8);
+    return decoder(QByteArrayView(c_str(), (qsizetype)size()));
+  }
+  operator QVariant() const
+  {
+    QStringDecoder decoder(QStringConverter::Utf8);
+    return QVariant(decoder(QByteArrayView(c_str(), (qsizetype)size())));
+  }
 #endif
 };
 
