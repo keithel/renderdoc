@@ -841,6 +841,8 @@ public:
     return *this;
   }
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
+  // With Qt 6, QVector and QList are the same thing, so no need to provide QVector variants.
   rdcarray(const QVector<T> &in)
   {
     elems = NULL;
@@ -864,6 +866,7 @@ public:
 
     return *this;
   }
+#endif
 #endif
 };
 
