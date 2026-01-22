@@ -296,8 +296,12 @@ public:
   {
     CameraWrapper::MouseWheel(e);
 
-    float mod = (1.0f - e->delta() / 2500.0f);
+    int angle = e->angleDelta().y();
+    // If horizontal scroll wheel, do nothing.
+    if (angle == 0)
+      return;
 
+    float mod = (1.0f - angle / 2500.0f);
     SetDistance(qMax(1e-6f, m_Distance * mod));
   }
 

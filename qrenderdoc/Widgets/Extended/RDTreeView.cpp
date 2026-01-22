@@ -292,7 +292,7 @@ void RDTreeView::mouseMoveEvent(QMouseEvent *e)
 void RDTreeView::wheelEvent(QWheelEvent *e)
 {
   QTreeView::wheelEvent(e);
-  m_currentHoverIndex = indexAt(e->pos());
+  m_currentHoverIndex = indexAt(e->position().toPoint());
 }
 
 void RDTreeView::leaveEvent(QEvent *e)

@@ -2636,13 +2636,17 @@ void TextureViewer::thumb_clicked(QMouseEvent *e)
 
 void TextureViewer::render_mouseWheel(QWheelEvent *e)
 {
-  QPoint cursorPos = e->pos();
+  int angle = e->angleDelta().y();
+  // If horizontal scroll wheel, do nothing.
+  if (angle == 0)
+    return;
 
+  QPointF cursorPos = e->position();
   setFitToWindow(false);
 
   // scroll in logarithmic scale
   double logScale = logf(m_TexDisplay.scale);
-  logScale += e->delta() / 2500.0;
+  logScale += angle / 2500.0;
   UI_SetScale((float)expf(logScale), cursorPos.x() * ui->render->devicePixelRatioF(),
               cursorPos.y() * ui->render->devicePixelRatioF());
 

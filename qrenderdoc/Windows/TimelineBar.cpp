@@ -428,7 +428,17 @@ void TimelineBar::mouseMoveEvent(QMouseEvent *e)
 
 void TimelineBar::wheelEvent(QWheelEvent *e)
 {
-  float mod = (1.0 + e->delta() / 2500.0f);
+  QPoint angleDeltaXY = e->angleDelta();
+
+  // Don't do anything if no scroll delta.
+  if (angleDeltaXY.y() == 0 && angleDeltaXY.x() == 0)
+    return;
+
+  // Perform the action if either horizontal or vertical scrollbars scroll.
+  // If both scroll wheels are scrolled (does this happen?), then prefer vertical (y).
+  int angleDelta = (angleDeltaXY.y() == 0 && angleDeltaXY.x() != 0) ? angleDeltaXY.x() : angleDeltaXY.y();
+
+  float mod = (1.0 + angleDelta / 2500.0f);
 
   qreal prevZoom = m_zoom;
 
@@ -439,9 +449,9 @@ void TimelineBar::wheelEvent(QWheelEvent *e)
   // adjust the pan so that it's still in bounds, and so the zoom acts centred on the mouse
   qreal newPan = m_pan;
 
-  newPan -= (e->x() - m_eidAxisRect.left());
+  newPan -= (e->position().x() - m_eidAxisRect.left());
   newPan = newPan * zoomDelta;
-  newPan += (e->x() - m_eidAxisRect.left());
+  newPan += (e->position().x() - m_eidAxisRect.left());
 
   m_pan = qBound(-m_dataArea.width() * (m_zoom - 1.0), newPan, 0.0);
 
