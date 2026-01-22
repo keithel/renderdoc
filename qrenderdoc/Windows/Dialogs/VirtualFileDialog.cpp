@@ -27,7 +27,8 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QPushButton>
-#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QSortFilterProxyModel>
 #include "Code/ReplayManager.h"
 #include "Code/Resources.h"
@@ -794,8 +795,7 @@ void VirtualFileDialog::on_filename_keyPress(QKeyEvent *e)
 
   QString text = ui->filename->text();
 
-  QRegExp re(text);
-  re.setPatternSyntax(QRegExp::Wildcard);
+  QRegularExpression re = QRegularExpression::fromWildcard(text, Qt::CaseSensitive);
 
   int fileCount = m_FileProxy->rowCount(curDir);
   int matches = 0, dirmatches = 0;
@@ -809,7 +809,8 @@ void VirtualFileDialog::on_filename_keyPress(QKeyEvent *e)
 
     QString filename = m_FileProxy->data(file, RemoteFileModel::FileNameRole).toString();
 
-    if(re.exactMatch(filename))
+    QRegularExpressionMatch filenameReMatch = re.match(filename);
+    if(filenameReMatch.hasMatch())
     {
       idx = file;
       dirmatches += isDir ? 1 : 0;
@@ -846,7 +847,7 @@ void VirtualFileDialog::on_filename_keyPress(QKeyEvent *e)
     fileNotFound(text);
   }
 
-  m_FileProxy->setFilterRegExp(re);
+  m_FileProxy->setFilterRegularExpression(re);
   m_FileProxy->refresh();
 }
 
