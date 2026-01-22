@@ -1858,7 +1858,7 @@ QIcon MakeSwatchIcon(QWidget *parentWidget, QColor swatchColor)
   {
     QPainter painter(&pm);
 
-    QPen pen(parentWidget->palette().foreground(), 1.0);
+    QPen pen(parentWidget->palette().windowText(), 1.0);
     painter.setPen(pen);
     painter.drawLine(QPoint(0, 0), QPoint(h - 1, 0));
     painter.drawLine(QPoint(h - 1, 0), QPoint(h - 1, h - 1));
