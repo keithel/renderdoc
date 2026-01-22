@@ -714,7 +714,7 @@ void ResourceInspector::resourceUsage_contextMenu(const QPoint &pos)
   RDDialog::show(&contextMenu, ui->resourceUsage->viewport()->mapToGlobal(pos));
 }
 
-void ResourceInspector::enterEvent(QEvent *event)
+void ResourceInspector::enterEvent(QEnterEvent *event)
 {
   HighlightUsage();
 }

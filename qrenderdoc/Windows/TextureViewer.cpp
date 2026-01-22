@@ -705,7 +705,7 @@ TextureViewer::~TextureViewer()
   delete ui;
 }
 
-void TextureViewer::enterEvent(QEvent *event)
+void TextureViewer::enterEvent(QEnterEvent *event)
 {
   HighlightUsage();
 }

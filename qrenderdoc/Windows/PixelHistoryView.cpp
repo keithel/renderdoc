@@ -740,7 +740,7 @@ void PixelHistoryView::disableTimelineHighlight()
     m_Ctx.GetTimelineBar()->HighlightHistory(ResourceId(), {});
 }
 
-void PixelHistoryView::enterEvent(QEvent *event)
+void PixelHistoryView::enterEvent(QEnterEvent *event)
 {
   enableTimelineHighlight();
 }
