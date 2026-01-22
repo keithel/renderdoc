@@ -4349,7 +4349,7 @@ For searching arbitrary parameters consider using the <code>$param()</code> func
     {
       // stop the timer, we'll manually fire it instantly
       m_FilterSettings.Timeout->stop();
-      m_FilterSettings.Timeout->timeout({});
+      settings_filterApply();
     }
 
     if(e->key() == Qt::Key_Down)
