@@ -458,7 +458,7 @@ void ResourceInspector::RevealParameter(SDObject *param)
         if(current->GetChild(i) == next)
         {
           current = next;
-          item = parent.child((int)i, 0);
+          item = m_ChunksModel->index((int)i, 0, parent);
           break;
         }
       }

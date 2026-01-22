@@ -5110,7 +5110,7 @@ void EventBrowser::GetMaxNameLength(int &maxNameLength, int indent, bool firstch
 
   for(int i = 0, rowCount = idx.model()->rowCount(idx); i < rowCount; i++)
   {
-    GetMaxNameLength(maxNameLength, indent + 1, firstchild, idx.child(i, COL_NAME));
+    GetMaxNameLength(maxNameLength, indent + 1, firstchild, idx.model()->index(i, COL_NAME, idx));
     firstchild = false;
   }
 }
@@ -5148,7 +5148,7 @@ void EventBrowser::ExportAction(QTextStream &writer, int maxNameLength, int inde
 
   for(int i = 0, rowCount = idx.model()->rowCount(idx); i < rowCount; i++)
   {
-    ExportAction(writer, maxNameLength, indent + 1, firstchild, idx.child(i, COL_NAME));
+    ExportAction(writer, maxNameLength, indent + 1, firstchild, idx.model()->index(i, COL_NAME, idx));
     firstchild = false;
   }
 }
