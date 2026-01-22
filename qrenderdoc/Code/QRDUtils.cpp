@@ -3916,7 +3916,7 @@ QVariant StructuredDataItemModel::headerData(int section, Qt::Orientation orient
 Qt::ItemFlags StructuredDataItemModel::flags(const QModelIndex &index) const
 {
   if(!index.isValid())
-    return 0;
+    return Qt::NoItemFlags;
 
   return QAbstractItemModel::flags(index);
 }
