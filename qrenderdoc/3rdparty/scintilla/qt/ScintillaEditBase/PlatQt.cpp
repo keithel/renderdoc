@@ -509,13 +509,21 @@ XYPOSITION SurfaceImpl::WidthText(Font &font, const char *s, int len)
 	QFontMetricsF metrics(*FontPointer(font), device);
 	SetCodec(font);
 	QString string = codec->toUnicode(s, len);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+	return metrics.horizontalAdvance(string);
+#else
 	return metrics.width(string);
+#endif
 }
 
 XYPOSITION SurfaceImpl::WidthChar(Font &font, char ch)
 {
 	QFontMetricsF metrics(*FontPointer(font), device);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+	return metrics.horizontalAdvance(QChar::fromLatin1(ch));
+#else
 	return metrics.width(QChar::fromLatin1(ch));
+#endif
 }
 
 XYPOSITION SurfaceImpl::Ascent(Font &font)
