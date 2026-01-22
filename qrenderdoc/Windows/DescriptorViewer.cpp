@@ -1284,15 +1284,6 @@ DescriptorViewer::DescriptorViewer(ICaptureContext &ctx, QWidget *parent)
 {
   ui->setupUi(this);
 
-  {
-    static bool registered = false;
-    if(!registered)
-    {
-      registered = true;
-      QMetaType::registerComparators<ButtonTag>();
-    }
-  }
-
   m_Model = new DescriptorItemModel(ctx, *this, this);
 
   ui->descriptors->setModel(m_Model);
