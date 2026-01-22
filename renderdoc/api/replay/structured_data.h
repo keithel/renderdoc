@@ -179,7 +179,7 @@ DOCUMENT(R"(Bitfield flags that could be applied to a type.
 
 .. data:: OffsetOrSize
 
-  Special flag to indicate that this type will be used as a byte offset or byte size, which is used to 
+  Special flag to indicate that this type will be used as a byte offset or byte size, which is used to
   control the formatting mode when the value is displayed in the UI.
 )");
 enum class SDTypeFlags : uint32_t
@@ -998,7 +998,7 @@ Invalid if the object is not actually a :class:`ResourceId`.
       {
         QVariantMap ret;
         for(size_t i = 0; i < data.children.size(); i++)
-          ret[data.children[i]->name] = *data.children[i];
+          ret[QString(data.children[i]->name)] = *data.children[i];
         break;
       }
       case SDBasic::Array:

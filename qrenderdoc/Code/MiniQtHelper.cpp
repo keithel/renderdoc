@@ -91,7 +91,7 @@ void MiniQtHelper::AddWidgetCallback(QWidget *widget, QMetaObject::Connection co
 QWidget *MiniQtHelper::CreateToplevelWidget(const rdcstr &windowTitle, WidgetCallback closed)
 {
   QWidget *ret = new QWidget();
-  ret->setWindowTitle(windowTitle);
+  ret->setWindowTitle(QString(windowTitle));
   ret->setLayout(new QVBoxLayout());
   if(closed)
     AddWidgetCallback(ret, QObject::connect(ret, &QWidget::destroyed, [this, ret, closed]() {
@@ -311,13 +311,14 @@ void MiniQtHelper::SetWidgetText(QWidget *widget, const rdcstr &text)
   if(!widget)
     return;
 
-  widget->setWindowTitle(text);
+  QString qtext{QString(text)};
+  widget->setWindowTitle(qtext);
 
 #define SET_TEXT(TextWidget)                            \
   {                                                     \
     TextWidget *w = qobject_cast<TextWidget *>(widget); \
     if(w)                                               \
-      return w->setText(text);                          \
+      return w->setText(qtext);                          \
   }
 
   // setting text on a QLabel removes its pixmap
@@ -355,12 +356,12 @@ void MiniQtHelper::SetWidgetText(QWidget *widget, const rdcstr &text)
   {
     QGroupBox *w = qobject_cast<QGroupBox *>(widget);
     if(w)
-      return w->setTitle(text);
+      return w->setTitle(qtext);
   }
   {
     CollapseGroupBox *w = qobject_cast<CollapseGroupBox *>(widget);
     if(w)
-      return w->setTitle(text);
+      return w->setTitle(qtext);
   }
 }
 
@@ -421,7 +422,7 @@ void MiniQtHelper::SetWidgetFont(QWidget *widget, const rdcstr &font, int32_t fo
   QFont f = widget->font();
 
   if(!font.empty())
-    f.setFamily(font);
+    f.setFamily(QString(font));
   if(fontSize != 0)
     f.setPointSize(fontSize);
   f.setBold(bold);
@@ -701,8 +702,9 @@ void MiniQtHelper::SetComboOptions(QWidget *combo, const rdcarray<rdcstr> &optio
 
   QStringList texts;
 
-  for(const rdcstr &o : options)
-    texts << o;
+  for(const rdcstr &o : options) {
+    texts << QString(o);
+  }
 
   if(comb)
   {
@@ -730,7 +732,7 @@ void MiniQtHelper::SelectComboOption(QWidget *combo, const rdcstr &option)
   QComboBox *comb = qobject_cast<QComboBox *>(combo);
 
   if(comb)
-    comb->setCurrentText(option);
+    comb->setCurrentText(QString(option));
 }
 
 QWidget *MiniQtHelper::CreateProgressBar(bool horizontal)
