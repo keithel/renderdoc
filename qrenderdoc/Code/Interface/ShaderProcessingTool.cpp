@@ -98,7 +98,7 @@ static ShaderToolOutput RunTool(const ShaderProcessingTool &tool, QWidget *windo
     return ret;
   }
 
-  QString path = tool.executable;
+  QString path{QString(tool.executable)};
 
   if(!QDir::isAbsolutePath(path))
   {
@@ -133,7 +133,7 @@ static ShaderToolOutput RunTool(const ShaderProcessingTool &tool, QWidget *windo
     // stderr
     process.setStandardErrorFile(stdout_file);
 
-    process.start(tool.executable, argList);
+    process.start(QString(tool.executable), argList);
     process.waitForFinished();
 
     {
@@ -186,9 +186,9 @@ static ShaderToolOutput RunTool(const ShaderProcessingTool &tool, QWidget *windo
   {
     case QProcess::FailedToStart:
     {
-      if(QDir::isAbsolutePath(tool.executable))
+      if(QDir::isAbsolutePath(QString(tool.executable)))
       {
-        if(!QFile::exists(tool.executable))
+        if(!QFile::exists(QString(tool.executable)))
         {
           processStatus =
               QApplication::translate("ShaderProcessingTool",
@@ -256,7 +256,7 @@ ShaderToolOutput ShaderProcessingTool::DisassembleShader(QWidget *window,
                                                          const ShaderReflection *shaderDetails,
                                                          rdcstr arguments) const
 {
-  QStringList argList = ParseArgsList(arguments.isEmpty() ? DefaultArguments() : arguments);
+  QStringList argList = ParseArgsList(QString(arguments.isEmpty() ? DefaultArguments() : arguments));
   // always append IO arguments for known tools, so we read/write to our own files and override any
   // dangling output specified file in the embedded command line
   argList.append(ParseArgsList(IOArguments()));
@@ -268,7 +268,7 @@ ShaderToolOutput ShaderProcessingTool::DisassembleShader(QWidget *window,
   QString spirvVer = lit("spirv1.0");
   for(const ShaderCompileFlag &flag : shaderDetails->debugInfo.compileFlags.flags)
     if(flag.name == "@spirver")
-      spirvVer = flag.value;
+      spirvVer = QString(flag.value);
 
   // replace arguments after expansion to avoid problems with quoting paths etc
   for(QString &arg : argList)
@@ -279,7 +279,7 @@ ShaderToolOutput ShaderProcessingTool::DisassembleShader(QWidget *window,
       arg = output_file = tmpPath(lit("shader_output"));
     if(arg == lit("{entry_point}"))
     {
-      arg = shaderDetails->entryPoint;
+      arg = QString(shaderDetails->entryPoint);
       if(arg.isEmpty())
         arg = lit("main");
     }
@@ -317,10 +317,10 @@ ShaderToolOutput ShaderProcessingTool::CompileShader(QWidget *window, rdcstr sou
                                                      rdcstr entryPoint, ShaderStage stage,
                                                      rdcstr spirvVer, rdcstr arguments) const
 {
-  QStringList argList = ParseArgsList(arguments.isEmpty() ? DefaultArguments() : arguments);
+  QStringList argList = ParseArgsList(QString(arguments.isEmpty() ? DefaultArguments() : arguments));
   // always append IO arguments for known tools, so we read/write to our own files and override any
   // dangling output specified file in the embedded command line
-  argList.append(ParseArgsList(IOArguments()));
+  argList.append(QString(ParseArgsList(IOArguments())));
 
   QString input_file, output_file;
 
@@ -337,14 +337,14 @@ ShaderToolOutput ShaderProcessingTool::CompileShader(QWidget *window, rdcstr sou
     if(arg == lit("{output_file}"))
       arg = output_file = tmpPath(lit("shader_output"));
     if(arg == lit("{entry_point}"))
-      arg = entryPoint;
+      arg = QString(entryPoint);
 
     // substring replacements to enable e.g. {hlsl_stage2}_6_0 and ={vulkan_ver}
     arg.replace(lit("{glsl_stage4}"), glsl_stage4[int(stage)]);
     arg.replace(lit("{hlsl_stage2}"), hlsl_stage2[int(stage)]);
     arg.replace(lit("{full_stage}"), full_stage[int(stage)]);
-    arg.replace(lit("{spirv_ver}"), spirvVer);
-    arg.replace(lit("{vulkan_ver}"), vulkanVerForSpirVer(spirvVer));
+    arg.replace(lit("{spirv_ver}"), QString(spirvVer));
+    arg.replace(lit("{vulkan_ver}"), vulkanVerForSpirVer(QString(spirvVer)));
   }
 
   QFile binHandle(input_file);

@@ -2092,7 +2092,7 @@ QVariant SDObject2Variant(const SDObject *obj, bool inlineImportant)
       {
         if(inlineImportant)
         {
-          QString name = obj->name;
+          QString name{obj->name};
 
           // don't display any "ClassName::" prefix by default here
           int nsSep = name.indexOf(lit("::"));

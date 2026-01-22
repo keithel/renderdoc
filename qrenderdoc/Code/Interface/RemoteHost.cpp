@@ -200,7 +200,7 @@ ResultDetails RemoteHost::Launch()
   rdcstr run = RunCommand();
 
   RDProcess process;
-  process.start(run);
+  process.start(QString(run));
   process.waitForFinished(2000);
   process.detach();
 

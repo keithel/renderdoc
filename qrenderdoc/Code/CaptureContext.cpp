@@ -862,7 +862,7 @@ void CaptureContext::LoadCapture(const rdcstr &captureFile, const ReplayOptions 
 
   if(local)
   {
-    m_Watcher = new QFileSystemWatcher({captureFile}, GetMainWindow()->Widget());
+    m_Watcher = new QFileSystemWatcher({QString(captureFile)}, GetMainWindow()->Widget());
 
     QObject::connect(m_Watcher, &QFileSystemWatcher::fileChanged, [this]() {
       Replay().AsyncInvoke([this](IReplayController *r) {

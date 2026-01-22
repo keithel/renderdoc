@@ -170,5 +170,5 @@ rdcstr ConfigFilePath(const rdcstr &filename)
   if(!dir.exists())
     dir.mkdir(lit("."));
 
-  return QDir::cleanPath(dir.absoluteFilePath(filename));
+  return QDir::cleanPath(dir.absoluteFilePath(QString(filename)));
 }

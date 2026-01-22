@@ -62,10 +62,10 @@ CrashDialog::CrashDialog(PersistantConfig &cfg, QVariantMap crashReportJSON, QWi
 
   setStage(ReportStage::FillingDetails);
 
-  m_CaptureFilename = m_Config.CrashReport_LastOpenedCapture;
+  m_CaptureFilename = QString(m_Config.CrashReport_LastOpenedCapture);
 
   ui->rememberEmail->setChecked(m_Config.CrashReport_ShouldRememberEmail);
-  ui->email->setText(m_Config.CrashReport_EmailAddress);
+  ui->email->setText(QString(m_Config.CrashReport_EmailAddress));
 
   QFileInfo capInfo(m_CaptureFilename);
 
@@ -257,14 +257,14 @@ CrashDialog::~CrashDialog()
 
 bool CrashDialog::HasCaptureReady(PersistantConfig &cfg)
 {
-  QFileInfo capInfo(cfg.CrashReport_LastOpenedCapture);
+  QFileInfo capInfo{QString(cfg.CrashReport_LastOpenedCapture)};
 
   return capInfo.exists() && capInfo.size() <= MaxUploadSize;
 }
 
 bool CrashDialog::CaptureTooLarge(PersistantConfig &cfg)
 {
-  QFileInfo capInfo(cfg.CrashReport_LastOpenedCapture);
+  QFileInfo capInfo{QString(cfg.CrashReport_LastOpenedCapture)};
 
   return capInfo.exists() && capInfo.size() > MaxUploadSize;
 }

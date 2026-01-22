@@ -195,7 +195,7 @@ public:
 
   void ConnectToRemoteServer(RemoteHost host) override;
 
-  rdcstr GetNotes(const rdcstr &key) override { return m_Notes[key]; }
+  rdcstr GetNotes(const rdcstr &key) override { return m_Notes[QString(key)]; }
   void SetNotes(const rdcstr &key, const rdcstr &contents) override;
   rdcarray<EventBookmark> GetBookmarks() override { return m_Bookmarks; }
   void SetBookmark(const EventBookmark &mark) override;

@@ -849,7 +849,7 @@ public:
 
         if(desc.ycbcrSampler != ResourceId())
         {
-          data = m_Ctx.GetResourceName(desc.ycbcrSampler);
+          data = QString(m_Ctx.GetResourceName(desc.ycbcrSampler));
 
           data += QFormatStr(", %1 %2").arg(ToQStr(desc.ycbcrModel)).arg(ToQStr(desc.ycbcrRange));
 

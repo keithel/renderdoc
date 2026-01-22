@@ -2954,7 +2954,7 @@ void TextureViewer::OnCaptureLoaded()
     GUIInvoke::call(this, [this]() { OnEventChanged(m_Ctx.CurEvent()); });
   });
 
-  m_Watcher = new QFileSystemWatcher({ConfigFilePath(QString())}, this);
+  m_Watcher = new QFileSystemWatcher({QString(ConfigFilePath(QString()))}, this);
 
   QObject::connect(m_Watcher, &QFileSystemWatcher::fileChanged, this,
                    &TextureViewer::customShaderModified);

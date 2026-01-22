@@ -82,7 +82,7 @@ QVariantMap convertToVariant(const rdcstrpairs &val)
   QVariantMap ret;
   for(const rdcstrpair &k : val)
   {
-    ret[k.first] = k.second;
+    ret[QString(k.first)] = k.second;
   }
   return ret;
 }
@@ -128,7 +128,7 @@ rdcstrpairs convertFromVariant(const QVariantMap &val)
 
 bool PersistantConfig::Deserialize(const rdcstr &filename)
 {
-  QFile f(filename);
+  QFile f{QString(filename)};
 
   m_Filename = filename;
 
@@ -162,7 +162,7 @@ bool PersistantConfig::Serialize(const rdcstr &filename)
 
   QVariantMap values = storeValues();
 
-  QFile f(m_Filename);
+  QFile f{QString(m_Filename)};
   if(f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     return SaveToJSON(values, f, JSON_ID, JSON_VER);
 
@@ -474,7 +474,7 @@ bool PersistantConfig::Load(const rdcstr &filename)
 {
   bool ret = Deserialize(filename);
 
-  RDDialog::DefaultBrowsePath = LastFileBrowsePath;
+  RDDialog::DefaultBrowsePath = QString(LastFileBrowsePath);
 
   // localhost should always be available as a remote host
   {
@@ -530,7 +530,7 @@ bool PersistantConfig::Load(const rdcstr &filename)
       continue;
 
     // try to find the tool in PATH
-    QString path = QStandardPaths::findExecutable(exe);
+    QString path = QStandardPaths::findExecutable(QString(exe));
 
     if(!path.isEmpty())
     {
@@ -566,7 +566,7 @@ bool PersistantConfig::Load(const rdcstr &filename)
 
     searchPaths << appDir.absoluteFilePath(lit("../../plugins/"));
 
-    path = QStandardPaths::findExecutable(exe, searchPaths);
+    path = QStandardPaths::findExecutable(QString(exe), searchPaths);
 
     if(!path.isEmpty())
     {
@@ -635,12 +635,12 @@ void PersistantConfig::SetupFormatting()
 
 void RemoveRecentFile(rdcarray<rdcstr> &recentList, const rdcstr &file)
 {
-  recentList.removeOne(QDir::cleanPath(file));
+  recentList.removeOne(QDir::cleanPath(QString(file)));
 }
 
 void AddRecentFile(rdcarray<rdcstr> &recentList, const rdcstr &file)
 {
-  QDir dir(file);
+  QDir dir{QString(file)};
   QString path = dir.canonicalPath();
 
   if(path.isEmpty())
