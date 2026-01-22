@@ -369,8 +369,8 @@ elseif(PySide6_FOUND AND Shiboken6_FOUND AND TARGET Shiboken6::libshiboken AND T
     # Add configuration for PySide6 to qmake include file
     file(APPEND
          ${CMAKE_BINARY_DIR}/qrenderdoc/qrenderdoc_cmake.pri
-         "DEFINES+=PYSIDE2_ENABLED=1\n"
-         "DEFINES+=PYSIDE2_SYS_PATH=${PYSIDE_PYTHONPATH}\n")
+         "DEFINES+=PYSIDE6_ENABLED=1\n"
+         "DEFINES+=PYSIDE6_SYS_PATH=${PYSIDE_PYTHONPATH}\n")
 
     # append each include dir
     foreach(DIR ${SHIBOKEN6_INCLUDE_DIRS} ${PYSIDE6_INCLUDE_DIRS})
@@ -387,7 +387,7 @@ else()
 
     file(APPEND
          ${CMAKE_BINARY_DIR}/qrenderdoc/qrenderdoc_cmake.pri
-         "DEFINES+=PYSIDE2_ENABLED=0\n")
+         "DEFINES+=PYSIDE6_ENABLED=0\n")
 endif()
 
 # generate the SWIG interface files
