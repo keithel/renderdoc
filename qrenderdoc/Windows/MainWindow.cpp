@@ -621,7 +621,7 @@ void MainWindow::on_action_Open_Capture_with_Options_triggered()
 
   QVBoxLayout l;
   l.addWidget(replayOptions);
-  l.setMargin(3);
+  l.setContentsMargins({3,3,3,3});
   l.setSizeConstraint(QLayout::SetFixedSize);
 
   openWithOptions->setLayout(&l);

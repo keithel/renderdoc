@@ -3500,7 +3500,6 @@ EventBrowser::EventBrowser(ICaptureContext &ctx, QWidget *parent)
   {
     QHBoxLayout *box = new QHBoxLayout(ui->breadcrumbStrip);
     box->setContentsMargins(QMargins(0, 0, 0, 0));
-    box->setMargin(0);
     box->setSpacing(0);
     m_Breadcrumbs = new MarkerBreadcrumbs(m_Ctx, this, this);
     box->addWidget(m_Breadcrumbs);
