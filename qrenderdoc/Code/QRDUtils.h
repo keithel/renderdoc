@@ -1027,7 +1027,7 @@ typedef std::function<float()> ProgressUpdateMethod;
 typedef std::function<bool()> ProgressFinishedMethod;
 typedef std::function<void()> ProgressCancelMethod;
 
-QStringList ParseArgsList(const QString &args);
+QStringList ParseArgsList(const QAnyStringView &args);
 bool IsRunningAsAdmin();
 bool RunProcessAsAdmin(const QString &fullExecutablePath, const QStringList &params,
                        QWidget *parent = NULL, bool hidden = false,

@@ -256,7 +256,7 @@ ShaderToolOutput ShaderProcessingTool::DisassembleShader(QWidget *window,
                                                          const ShaderReflection *shaderDetails,
                                                          rdcstr arguments) const
 {
-  QStringList argList = ParseArgsList(QString(arguments.isEmpty() ? DefaultArguments() : arguments));
+  QStringList argList = ParseArgsList(arguments.isEmpty() ? DefaultArguments() : arguments);
   // always append IO arguments for known tools, so we read/write to our own files and override any
   // dangling output specified file in the embedded command line
   argList.append(ParseArgsList(IOArguments()));
@@ -320,7 +320,7 @@ ShaderToolOutput ShaderProcessingTool::CompileShader(QWidget *window, rdcstr sou
   QStringList argList = ParseArgsList(QString(arguments.isEmpty() ? DefaultArguments() : arguments));
   // always append IO arguments for known tools, so we read/write to our own files and override any
   // dangling output specified file in the embedded command line
-  argList.append(QString(ParseArgsList(IOArguments())));
+  argList.append(ParseArgsList(IOArguments()));
 
   QString input_file, output_file;
 

@@ -3214,7 +3214,7 @@ void RevealFilenameInExternalFileBrowser(const QString &filePath)
 #endif
 }
 
-QStringList ParseArgsList(const QString &args)
+QStringList ParseArgsList(const QAnyStringView &args)
 {
   QStringList ret;
 
@@ -3223,7 +3223,7 @@ QStringList ParseArgsList(const QString &args)
 
 // on windows just use the function provided by the system
 #if defined(Q_OS_WIN32)
-  std::wstring wargs = args.toStdWString();
+  std::wstring wargs = args.toString().toStdWString();
 
   int argc = 0;
   wchar_t **argv = CommandLineToArgvW(wargs.c_str(), &argc);
@@ -3233,7 +3233,9 @@ QStringList ParseArgsList(const QString &args)
 
   LocalFree(argv);
 #else
-  rdcstr argString = args;
+  // TODO: Rewrite this using QAnyStringView/QStringView for performance reasons.
+  // Return value will need to change from QStringList to QList<QAnyStringView>, and one will need to ensure that the source string is not deleted.
+  rdcstr argString = QString(args);
 
   // perform some kind of sane parsing
   bool dquot = false, squot = false;    // are we inside ''s or ""s
