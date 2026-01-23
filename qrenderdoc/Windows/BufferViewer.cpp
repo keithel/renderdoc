@@ -1005,7 +1005,9 @@ public:
     {
       if(role == Qt::SizeHintRole)
       {
-        QStyleOptionViewItem opt = view->viewOptions();
+        QStyleOptionViewItem opt;
+        view->initViewItemOption(&opt);
+        // TODO: Check version.
         opt.features |= QStyleOptionViewItem::HasDisplay;
 
         // pad these columns to allow for sufficiently wide data

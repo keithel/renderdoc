@@ -820,7 +820,7 @@ public:
 
 protected:
 	virtual void mouseDoubleClickEvent(QMouseEvent *event);
-	virtual QStyleOptionViewItem viewOptions() const;
+	void initViewItemOption(QStyleOptionViewItem *option) const override;
 
 private:
 	CallBackAction doubleClickAction;
@@ -1108,11 +1108,10 @@ void ListWidget::mouseDoubleClickEvent(QMouseEvent * /* event */)
 	}
 }
 
-QStyleOptionViewItem ListWidget::viewOptions() const
+void ListWidget::initViewItemOption(QStyleOptionViewItem *option) const
 {
-	QStyleOptionViewItem result = QListWidget::viewOptions();
-	result.state |= QStyle::State_Active;
-	return result;
+	QListWidget::initViewItemOption(option);
+	option->state |= QStyle::State_Active;
 }
 
 //----------------------------------------------------------------------

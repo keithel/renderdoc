@@ -810,8 +810,10 @@ void RDTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModel
     if(model()->rowCount(index) == 0)
       return;
 
-    QStyleOptionViewItem branchopt = viewOptions();
+    QStyleOptionViewItem branchopt;
+    initViewItemOption(&branchopt);
 
+    // TODO: Check branchopt version.
     branchopt.rect = primitive;
 
     // unfortunately QStyle::State_Children doesn't render ONLY the
