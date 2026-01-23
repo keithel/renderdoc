@@ -61,7 +61,7 @@ int BreadcrumbsLayout::count() const
 
 Qt::Orientations BreadcrumbsLayout::expandingDirections() const
 {
-  return 0;
+  return {};
 }
 
 QSize BreadcrumbsLayout::minimumSize() const
