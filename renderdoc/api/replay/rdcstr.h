@@ -1256,14 +1256,22 @@ public:
 #endif
 };
 
-// add a std::hash overload so rdcstr can be used in hashmaps
-#ifdef RENDERDOC_EXPORTS
-
-#include <functional>
-
 // from string_utils.h
 uint32_t strhash(const char *str);
 
+#if defined(RENDERDOC_QT_COMPAT)
+// Must be inline to be defined in a header
+// Must be in the same namespace as rdcstr (Global namespace in RenderDoc's case)
+inline size_t qHash(const rdcstr &s, size_t seed = 0)
+{
+    // Use the existing strhash logic
+    return static_cast<size_t>(strhash(s.c_str())) ^ seed;
+}
+#endif
+
+// add a std::hash overload so rdcstr can be used in hashmaps
+#ifdef RENDERDOC_EXPORTS
+#include <functional>
 namespace std
 {
 template <>
