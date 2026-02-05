@@ -16,6 +16,7 @@
 #include <QPaintDevice>
 #include <QPainter>
 #include <QHash>
+#include <QTextCodec>
 
 #ifdef SCI_NAMESPACE
 namespace Scintilla {

@@ -329,7 +329,7 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc,
 {
 	PenColour(fore);
 	BrushColour(back);
-	GetPainter()->drawRoundRect(QRectFFromPRect(rc));
+	GetPainter()->drawRoundedRect(QRectFFromPRect(rc), 25, 25);
 }
 
 void SurfaceImpl::AlphaRectangle(PRectangle rc,

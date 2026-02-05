@@ -1,4 +1,4 @@
-QT += core gui widgets svg network
+QT += core gui widgets svg network core5compat
 QT += waylandclient_private
 
 CONFIG   += silent
