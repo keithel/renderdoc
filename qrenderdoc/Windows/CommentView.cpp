@@ -146,8 +146,8 @@ void CommentView::OnEventChanged(uint32_t eventId)
   if(m_ignoreModifications)
     return;
 
-  QString oldText = GetComments();
-  QString newText = m_Ctx.GetNotes("comments");
+  rdcstr oldText = GetComments();
+  rdcstr newText = m_Ctx.GetNotes("comments");
 
   if(oldText != newText)
     SetComments(newText);

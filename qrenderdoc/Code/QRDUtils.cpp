@@ -190,7 +190,7 @@ void TruncateStringFromEnd(QString &name)
 
 QString GetTruncatedResourceName(const ICaptureContext &ctx, ResourceId id)
 {
-  QString name = ctx.GetResourceName(id);
+  QString name = QString(ctx.GetResourceName(id));
   TruncateStringFromEnd(name);
 
   return name;
@@ -1117,12 +1117,12 @@ bool RichResourceTextMouseEvent(const QWidget *owner, const QVariant &var, QRect
             if(ptrType.name.isEmpty() && ptrType.members.size() == 1)
               pack = Packing::Scalar;
 
-            formatter = BufferFormatter::DeclareStruct(pack, ResourceId(), ptrType.name,
+            formatter = BufferFormatter::DeclareStruct(pack, ResourceId(), QString(ptrType.name),
                                                        ptrType.members, ptrType.arrayByteStride);
           }
           else if(!ptrType.name.empty() && ptrType.name[0] != '<')
           {
-            formatter = ptrType.name;
+            formatter = QString(ptrType.name);
           }
 
           IBufferViewer *view = ctx.ViewBuffer(ptr->offset, ~0ULL, ptr->base, formatter);
@@ -1760,7 +1760,7 @@ QString TypeString(const SigParameter &sig)
 QString D3DSemanticString(const SigParameter &sig)
 {
   if(sig.systemValue == ShaderBuiltin::Undefined)
-    return sig.semanticIdxName;
+    return QString(sig.semanticIdxName);
 
   QString sysValues[] = {
       lit("SV_Undefined"),
@@ -1940,7 +1940,7 @@ QString GetParentMarkerPath(ICaptureContext &ctx, uint32_t eventId, bool &hasPar
     if(parent->flags & ActionFlags::PushMarker)
     {
       QString prevPath = markerPath;
-      markerPath = parent->customName;
+      markerPath = QString(parent->customName);
       if(!prevPath.isEmpty())
       {
         markerPath += lit(" -> ");
@@ -2092,7 +2092,7 @@ QVariant SDObject2Variant(const SDObject *obj, bool inlineImportant)
       {
         if(inlineImportant)
         {
-          QString name{obj->name};
+          QString name = QString(obj->name);
 
           // don't display any "ClassName::" prefix by default here
           int nsSep = name.indexOf(lit("::"));
@@ -2833,24 +2833,24 @@ void Formatter::setParams(const PersistantConfig &config)
   {
     *m_Font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     if(!config.Font_MonoFamily.isEmpty())
-      m_Font->setFamily(config.Font_MonoFamily);
+      m_Font->setFamily(QString(config.Font_MonoFamily));
   }
   else
   {
     *m_Font = QFont();
     if(!config.Font_Family.isEmpty())
-      m_Font->setFamily(config.Font_Family);
+      m_Font->setFamily(QString(config.Font_Family));
   }
 
   m_Font->setPointSizeF(m_FontBaseSize * config.Font_GlobalScale);
   QFont f = QApplication::font();
   f.setPointSizeF(m_FontBaseSize * config.Font_GlobalScale);
   if(!config.Font_Family.isEmpty())
-    f.setFamily(config.Font_Family);
+    f.setFamily(QString(config.Font_Family));
   QApplication::setFont(f);
 
   if(!config.Font_MonoFamily.isEmpty())
-    m_FixedFont->setFamily(config.Font_MonoFamily);
+    m_FixedFont->setFamily(QString(config.Font_MonoFamily));
 
   m_FixedFont->setPointSizeF(m_FixedFontBaseSize * config.Font_GlobalScale);
 
@@ -3235,7 +3235,7 @@ QStringList ParseArgsList(const QAnyStringView &args)
 #else
   // TODO: Rewrite this using QAnyStringView/QStringView for performance reasons.
   // Return value will need to change from QStringList to QList<QAnyStringView>, and one will need to ensure that the source string is not deleted.
-  rdcstr argString = QString(args);
+  rdcstr argString = rdcstr(args);
 
   // perform some kind of sane parsing
   bool dquot = false, squot = false;    // are we inside ''s or ""s
@@ -3568,7 +3568,7 @@ void UpdateVisibleColumns(rdcstr windowTitle, int columnCount, QHeaderView *head
   RDListWidget list;
   QDialogButtonBox buttons;
 
-  dialog.setWindowTitle(windowTitle);
+  dialog.setWindowTitle(QString(windowTitle));
   dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
   for(int visIdx = 0; visIdx < columnCount; visIdx++)

@@ -70,7 +70,7 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
   int curFontOption = -1;
   for(int i = 0; i < ui->Font_Family->count(); i++)
   {
-    if(ui->Font_Family->itemText(i) == m_Ctx.Config().Font_Family)
+    if(ui->Font_Family->itemText(i) == QString(m_Ctx.Config().Font_Family))
     {
       curFontOption = i;
       break;
@@ -107,7 +107,7 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
   curFontOption = -1;
   for(int i = 0; i < ui->Font_MonoFamily->count(); i++)
   {
-    if(ui->Font_MonoFamily->itemText(i) == m_Ctx.Config().Font_MonoFamily)
+    if(ui->Font_MonoFamily->itemText(i) == QString(m_Ctx.Config().Font_MonoFamily))
     {
       curFontOption = i;
       break;
@@ -143,12 +143,12 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
 
   for(int i = 0; i < (int)TimeUnit::Count; i++)
   {
-    ui->EventBrowser_TimeUnit->addItem(UnitSuffix((TimeUnit)i));
+    ui->EventBrowser_TimeUnit->addItem(QString(UnitSuffix((TimeUnit)i)));
   }
 
   for(int i = 0; i < (int)OffsetSizeDisplayMode::Count; i++)
   {
-    ui->Formatter_OffsetSizeDisplayMode->addItem((ToStr((OffsetSizeDisplayMode)i)));
+    ui->Formatter_OffsetSizeDisplayMode->addItem(QString(ToStr((OffsetSizeDisplayMode)i)));
   }
 
   ui->pages->clearSelection();
@@ -160,15 +160,15 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
 
   for(int i = 0; i < StyleData::numAvailable; i++)
   {
-    if(StyleData::availStyles[i].styleID == m_Ctx.Config().UIStyle)
+    if(QString(StyleData::availStyles[i].styleID) == QString(m_Ctx.Config().UIStyle))
     {
       ui->UIStyle->setCurrentIndex(i);
       break;
     }
   }
 
-  ui->saveDirectory->setText(m_Ctx.Config().DefaultCaptureSaveDirectory);
-  ui->tempDirectory->setText(m_Ctx.Config().TemporaryCaptureDirectory);
+  ui->saveDirectory->setText(QString(m_Ctx.Config().DefaultCaptureSaveDirectory));
+  ui->tempDirectory->setText(QString(m_Ctx.Config().TemporaryCaptureDirectory));
 
   ui->shaderTools->setColumnCount(2);
   ui->shaderTools->setHorizontalHeaderLabels(QStringList() << tr("Tool") << tr("Process"));
@@ -187,7 +187,7 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
   ui->deleteShaderTool->setEnabled(false);
   ui->editShaderTool->setEnabled(false);
 
-  ui->ExternalTool_RadeonGPUProfiler->setText(m_Ctx.Config().ExternalTool_RadeonGPUProfiler);
+  ui->ExternalTool_RadeonGPUProfiler->setText(QString(m_Ctx.Config().ExternalTool_RadeonGPUProfiler));
 
   ui->TextureViewer_ResetRange->setChecked(m_Ctx.Config().TextureViewer_ResetRange);
   ui->TextureViewer_PerTexSettings->setChecked(m_Ctx.Config().TextureViewer_PerTexSettings);
@@ -240,7 +240,7 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
 
   if(const SDObject *setting = RENDERDOC_GetConfigSetting("Android.SDKDirPath"))
   {
-    ui->Android_SDKPath->setText(setting->AsString());
+    ui->Android_SDKPath->setText(QString(setting->AsString()));
   }
   else
   {
@@ -250,7 +250,7 @@ SettingsDialog::SettingsDialog(ICaptureContext &ctx, QWidget *parent)
 
   if(const SDObject *setting = RENDERDOC_GetConfigSetting("Android.JDKDirPath"))
   {
-    ui->Android_JDKPath->setText(setting->AsString());
+    ui->Android_JDKPath->setText(QString(setting->AsString()));
   }
   else
   {
@@ -500,7 +500,7 @@ void SettingsDialog::on_browseSaveCaptureDirectory_clicked()
 {
   QString dir =
       RDDialog::getExistingDirectory(this, tr("Choose default directory for saving captures"),
-                                     m_Ctx.Config().DefaultCaptureSaveDirectory);
+                                     QString(m_Ctx.Config().DefaultCaptureSaveDirectory));
 
   if(!dir.isEmpty())
   {
@@ -647,7 +647,7 @@ void SettingsDialog::on_chooseSearchPaths_clicked()
 
   for(const SDObject *c : *getPaths)
   {
-    items << c->data.str;
+    items << QString(c->data.str);
     recursive << true;
   }
 
@@ -723,7 +723,7 @@ void SettingsDialog::on_chooseIgnores_clicked()
   QStringList items;
 
   for(const SDObject *c : *getPaths)
-    items << c->data.str;
+    items << QString(c->data.str);
 
   list.setItems(items);
 
@@ -764,7 +764,7 @@ void SettingsDialog::on_browseRGPPath_clicked()
 {
   QString rgp = RDDialog::getExecutableFileName(
       this, tr("Locate RGP executable"),
-      QFileInfo(m_Ctx.Config().ExternalTool_RadeonGPUProfiler).absoluteDir().path());
+      QFileInfo(QString(m_Ctx.Config().ExternalTool_RadeonGPUProfiler)).absoluteDir().path());
 
   if(!rgp.isEmpty())
   {
@@ -815,7 +815,7 @@ void SettingsDialog::on_TextureViewer_ChooseShaderDirectories_clicked()
   QStringList items;
   for(const rdcstr &dir : m_Ctx.Config().TextureViewer_ShaderDirs)
   {
-    items.append(dir);
+    items.append(QString(dir));
   }
 
   list.setItems(items);
@@ -859,7 +859,7 @@ void SettingsDialog::addProcessor(const ShaderProcessingTool &tool)
 
   ui->shaderTools->setVerticalHeaderItem(row, new QTableWidgetItem(QString()));
 
-  ui->shaderTools->setItem(row, 0, new QTableWidgetItem(tool.name));
+  ui->shaderTools->setItem(row, 0, new QTableWidgetItem(QString(tool.name)));
   ui->shaderTools->setItem(
       row, 1,
       new QTableWidgetItem(QFormatStr("%1 -> %2").arg(ToQStr(tool.input)).arg(ToQStr(tool.output))));
@@ -1019,9 +1019,9 @@ bool SettingsDialog::editTool(int existing, ShaderProcessingTool &tool)
   // -1 because we skip ShaderEncoding::Unknown
   inputEdit.setCurrentIndex(int(tool.input) - 1);
   outputEdit.setCurrentIndex(int(tool.output) - 1);
-  executableEdit.setText(tool.executable);
-  argsEdit.setText(tool.args);
-  nameEdit.setText(tool.name);
+  executableEdit.setText(QString(tool.executable));
+  argsEdit.setText(QString(tool.args));
+  nameEdit.setText(QString(tool.name));
   toolEdit.setCurrentIndex(int(tool.tool));
 
   bool invalid = false;
@@ -1154,7 +1154,7 @@ void SettingsDialog::on_editShaderTool_clicked()
 
   if(success)
   {
-    ui->shaderTools->setItem(row, 0, new QTableWidgetItem(tool.name));
+    ui->shaderTools->setItem(row, 0, new QTableWidgetItem(QString(tool.name)));
     ui->shaderTools->setItem(
         row, 1,
         new QTableWidgetItem(QFormatStr("%1 -> %2").arg(ToQStr(tool.input)).arg(ToQStr(tool.output))));
@@ -1278,7 +1278,7 @@ void SettingsDialog::on_Comments_ShowOnLoad_toggled(bool checked)
 void SettingsDialog::on_browseTempCaptureDirectory_clicked()
 {
   QString dir = RDDialog::getExistingDirectory(this, tr("Choose directory for temporary captures"),
-                                               m_Ctx.Config().TemporaryCaptureDirectory);
+                                               QString(m_Ctx.Config().TemporaryCaptureDirectory));
 
   if(!dir.isEmpty())
   {
@@ -1293,7 +1293,7 @@ void SettingsDialog::on_browseAndroidSDKPath_clicked()
 {
   QString sdk = RDDialog::getExistingDirectory(
       this, tr("Locate SDK root folder (containing build-tools, platform-tools)"),
-      QFileInfo(RENDERDOC_GetConfigSetting("Android.SDKDirPath")->AsString()).absoluteDir().path());
+      QFileInfo(QString(RENDERDOC_GetConfigSetting("Android.SDKDirPath")->AsString())).absoluteDir().path());
 
   if(!sdk.isEmpty())
   {
@@ -1318,7 +1318,7 @@ void SettingsDialog::on_browseJDKPath_clicked()
 {
   QString jdk = RDDialog::getExistingDirectory(
       this, tr("Locate JDK root folder (containing bin, jre, lib)"),
-      QFileInfo(RENDERDOC_GetConfigSetting("Android.JDKDirPath")->AsString()).absoluteDir().path());
+      QFileInfo(QString(RENDERDOC_GetConfigSetting("Android.JDKDirPath")->AsString())).absoluteDir().path());
 
   if(!jdk.isEmpty())
   {
@@ -1356,8 +1356,8 @@ void SettingsDialog::on_UIStyle_currentIndexChanged(int index)
   if(!isVisible())
     return;
 
-  QString oldStyle = m_Ctx.Config().UIStyle;
-  QString newStyle = StyleData::availStyles[index].styleID;
+  QString oldStyle = QString(m_Ctx.Config().UIStyle);
+  QString newStyle = QString(StyleData::availStyles[index].styleID);
 
   if(oldStyle == newStyle)
     return;

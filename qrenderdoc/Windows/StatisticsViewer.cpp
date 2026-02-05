@@ -766,7 +766,7 @@ void StatisticsViewer::GenerateReport()
   QString header =
       tr("Stats for %1.\n\nFile size: %2MB (%3MB uncompressed, compression ratio %4:1)\n"
          "Persistent Data (approx): %5MB, Frame-initial data (approx): %6MB\n")
-          .arg(QFileInfo(m_Ctx.GetCaptureFilename()).fileName())
+          .arg(QFileInfo(QString(m_Ctx.GetCaptureFilename())).fileName())
           .arg(compressedMB, 2, 'f', 2)
           .arg(uncompressedMB, 2, 'f', 2)
           .arg(compressRatio, 2, 'f', 2)

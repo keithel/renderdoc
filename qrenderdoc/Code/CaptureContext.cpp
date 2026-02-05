@@ -117,7 +117,7 @@ CaptureContext::CaptureContext(PersistantConfig &cfg) : m_Config(cfg)
 
       if(err.code == ResultCode::RemoteServerConnectionLost)
       {
-        QString serverName = Replay().CurrentRemote().Name();
+        QString serverName = QString(Replay().CurrentRemote().Name());
 
         title = tr("Connection lost to %1").arg(serverName);
         text =
@@ -215,7 +215,7 @@ CaptureContext::CaptureContext(PersistantConfig &cfg) : m_Config(cfg)
   });
 
   {
-    QDir dir(ConfigFilePath("extensions"));
+    QDir dir(QString(ConfigFilePath("extensions")));
 
     if(!dir.exists())
       dir.mkpath(dir.absolutePath());
@@ -281,7 +281,7 @@ bool CaptureContext::isRunning()
 
 rdcstr CaptureContext::TempCaptureFilename(const rdcstr &appname)
 {
-  QString folder = Config().TemporaryCaptureDirectory;
+  QString folder = QString(Config().TemporaryCaptureDirectory);
 
   QDir dir(folder);
 
@@ -644,12 +644,12 @@ IMiniQtHelper &CaptureContext::GetMiniQtHelper()
 
 void CaptureContext::MessageDialog(const rdcstr &text, const rdcstr &title)
 {
-  RDDialog::information(m_MainWindow, title, text);
+  RDDialog::information(m_MainWindow, QString(title), QString(text));
 }
 
 void CaptureContext::ErrorDialog(const rdcstr &text, const rdcstr &title)
 {
-  RDDialog::critical(m_MainWindow, title, text);
+  RDDialog::critical(m_MainWindow, QString(title), QString(text));
 }
 
 DialogButton CaptureContext::QuestionDialog(const rdcstr &text, const rdcarray<DialogButton> &options,
@@ -658,22 +658,22 @@ DialogButton CaptureContext::QuestionDialog(const rdcstr &text, const rdcarray<D
   QMessageBox::StandardButtons buttons;
   for(DialogButton b : options)
     buttons |= (QMessageBox::StandardButton)b;
-  return (DialogButton)RDDialog::question(m_MainWindow, title, text, buttons);
+  return (DialogButton)RDDialog::question(m_MainWindow, QString(title), QString(text), buttons);
 }
 
 rdcstr CaptureContext::OpenFileName(const rdcstr &caption, const rdcstr &dir, const rdcstr &filter)
 {
-  return RDDialog::getOpenFileName(m_MainWindow, caption, dir, filter);
+  return RDDialog::getOpenFileName(m_MainWindow, QString(caption), QString(dir), QString(filter));
 }
 
 rdcstr CaptureContext::OpenDirectoryName(const rdcstr &caption, const rdcstr &dir)
 {
-  return RDDialog::getExistingDirectory(m_MainWindow, caption, dir);
+  return RDDialog::getExistingDirectory(m_MainWindow, QString(caption), QString(dir));
 }
 
 rdcstr CaptureContext::SaveFileName(const rdcstr &caption, const rdcstr &dir, const rdcstr &filter)
 {
-  return RDDialog::getSaveFileName(m_MainWindow, caption, dir, filter);
+  return RDDialog::getSaveFileName(m_MainWindow, QString(caption), QString(dir), QString(filter));
 }
 
 void CaptureContext::AddSortedMenuItem(QMenu *menu, bool rootMenu, const rdcarray<rdcstr> &items,
@@ -731,7 +731,7 @@ void CaptureContext::AddSortedMenuItem(QMenu *menu, bool rootMenu, const rdcarra
     // see if this submenu already exists, if so just iterate down to it
     for(QAction *a : children)
     {
-      if(a->text() == items[i])
+      if(a->text() == QString(items[i]))
       {
         menu = a->menu();
         found = true;
@@ -747,7 +747,7 @@ void CaptureContext::AddSortedMenuItem(QMenu *menu, bool rootMenu, const rdcarra
     }
 
     // create the new submenu
-    QMenu *submenu = new QMenu(items[i], m_MainWindow);
+    QMenu *submenu = new QMenu(QString(items[i]), m_MainWindow);
 
     // if we don't have a beforeAction, find where to insert this to keep alphabetical order.
     if(!beforeAction)
@@ -779,7 +779,7 @@ void CaptureContext::AddSortedMenuItem(QMenu *menu, bool rootMenu, const rdcarra
 
   QAction *action = new QAction(m_MainWindow);
 
-  action->setText(items.back());
+  action->setText(QString(items.back()));
 
   QObject::connect(action, &QAction::triggered, callback);
 
@@ -837,7 +837,7 @@ void CaptureContext::LoadCapture(const rdcstr &captureFile, const ReplayOptions 
   m_LoadInProgress = true;
 
   if(local)
-    m_Config.CrashReport_LastOpenedCapture = origFilename;
+    m_Config.CrashReport_LastOpenedCapture = QString(origFilename);
   else
     m_Config.CrashReport_LastOpenedCapture = QString();
 
@@ -847,7 +847,7 @@ void CaptureContext::LoadCapture(const rdcstr &captureFile, const ReplayOptions 
 
   LambdaThread *thread =
       new LambdaThread([this, captureFile, opts, origFilename, temporary, local]() {
-        LoadCaptureThreaded(captureFile, opts, origFilename, temporary, local);
+        LoadCaptureThreaded(QString(captureFile), opts, QString(origFilename), temporary, local);
       });
   thread->setName(lit("LoadCapture"));
   thread->selfDelete(true);
@@ -857,7 +857,7 @@ void CaptureContext::LoadCapture(const rdcstr &captureFile, const ReplayOptions 
   loadTimer.start();
 
   ShowProgressDialog(
-      m_MainWindow, tr("Loading Capture: %1").arg(QFileInfo(origFilename).fileName()),
+      m_MainWindow, tr("Loading Capture: %1").arg(QFileInfo(QString(origFilename)).fileName()),
       [this]() { return !m_LoadInProgress; }, [this]() { return UpdateLoadProgress(); });
 
   if(local)
@@ -1163,7 +1163,7 @@ void CaptureContext::LoadCaptureThreaded(const QString &captureFile, const Repla
       });
     }
 
-    QString driver = access->DriverName();
+    QString driver = QString(access->DriverName());
     if(driver == lit("Image"))
     {
       ANALYTIC_SET(UIFeatures.ImageViewer, true);
@@ -1195,7 +1195,7 @@ void CaptureContext::CacheResources()
 
 void CaptureContext::RecompressCapture()
 {
-  QString destFilename = GetCaptureFilename();
+  QString destFilename = QString(GetCaptureFilename());
   QString tempFilename;
 
   qint64 oldSize = QFile(destFilename).size();
@@ -1223,12 +1223,12 @@ void CaptureContext::RecompressCapture()
 
     if(IsCaptureLocal())
     {
-      tempFilename = GetCaptureFilename();
+      tempFilename = QString(GetCaptureFilename());
     }
     else
     {
-      tempFilename = TempCaptureFilename(lit("recompress"));
-      Replay().CopyCaptureFromRemote(GetCaptureFilename(), tempFilename, m_MainWindow);
+      tempFilename = QString(TempCaptureFilename(lit("recompress")));
+      Replay().CopyCaptureFromRemote(QString(GetCaptureFilename()), tempFilename, m_MainWindow);
 
       if(!QFile::exists(tempFilename))
       {
@@ -1243,7 +1243,7 @@ void CaptureContext::RecompressCapture()
     // if we're doing this inplace on an already saved capture, then we need to recompress to a
     // temporary and close/move it afterwards.
     inplace = true;
-    destFilename = TempCaptureFilename(lit("recompress"));
+    destFilename = QString(TempCaptureFilename(lit("recompress")));
   }
 
   if(IsCaptureLocal())
@@ -1310,13 +1310,13 @@ void CaptureContext::RecompressCapture()
     cap->OpenFile("", "", NULL);
 
     // now remove the old capture
-    QFile::remove(GetCaptureFilename());
+    QFile::remove(QString(GetCaptureFilename()));
 
     // move the recompressed one over
-    QFile::rename(destFilename, GetCaptureFilename());
+    QFile::rename(destFilename, QString(GetCaptureFilename()));
 
     // and re-open
-    cap->OpenFile(GetCaptureFilename(), "rdc", NULL);
+    cap->OpenFile(QString(GetCaptureFilename()), "rdc", NULL);
   }
   else
   {
@@ -1361,7 +1361,7 @@ bool CaptureContext::SaveCaptureTo(const rdcstr &captureFile)
 
   if(IsCaptureLocal())
   {
-    if(QFileInfo(GetCaptureFilename()).exists())
+    if(QFileInfo(QString(GetCaptureFilename())).exists())
     {
       if(GetCaptureFilename() == captureFile)
       {
@@ -1376,14 +1376,14 @@ bool CaptureContext::SaveCaptureTo(const rdcstr &captureFile)
           // this will overwrite
           ResultDetails result = capFile->CopyFileTo(captureFile);
           success = result.OK();
-          error = result.Message();
+          error = QString(result.Message());
         }
         else
         {
           // QFile::copy won't overwrite, so remove the destination first (the save dialog already
           // prompted for overwrite)
-          QFile::remove(captureFile);
-          success = QFile::copy(GetCaptureFilename(), captureFile);
+          QFile::remove(QString(captureFile));
+          success = QFile::copy(QString(GetCaptureFilename()), QString(captureFile));
           error = tr("File move failed");
         }
 
@@ -1392,15 +1392,15 @@ bool CaptureContext::SaveCaptureTo(const rdcstr &captureFile)
     }
     else
     {
-      error = tr("Capture '%1' couldn't be found on disk, cannot save.").arg(GetCaptureFilename());
+      error = tr("Capture '%1' couldn't be found on disk, cannot save.").arg(QString(GetCaptureFilename()));
       success = false;
       RDDialog::critical(NULL, tr("File not found"), error);
     }
   }
   else
   {
-    Replay().CopyCaptureFromRemote(GetCaptureFilename(), captureFile, m_MainWindow);
-    success = QFile::exists(captureFile);
+    Replay().CopyCaptureFromRemote(QString(GetCaptureFilename()), captureFile, m_MainWindow);
+    success = QFile::exists(QString(captureFile));
 
     error = tr("File couldn't be transferred from remote host");
   }
@@ -1419,11 +1419,11 @@ bool CaptureContext::SaveCaptureTo(const rdcstr &captureFile)
   }
 
   // Update the filename, and mark that it's local and not temporary now.
-  m_CaptureFile = captureFile;
+  m_CaptureFile = QString(captureFile);
   m_CaptureLocal = true;
   m_CaptureTemporary = false;
 
-  m_Replay.ReopenCaptureFile(captureFile);
+  m_Replay.ReopenCaptureFile(QString(captureFile));
   SaveChanges();
 
   return true;
@@ -1494,12 +1494,12 @@ bool CaptureContext::ImportCapture(const CaptureFileFormat &fmt, const rdcstr &i
 {
   CloseCapture();
 
-  QString ext = fmt.extension;
+  QString ext = QString(fmt.extension);
 
   ResultDetails result;
 
   // shorten the filename after here for error messages
-  QString filename = QFileInfo(importfile).fileName();
+  QString filename = QFileInfo(QString(importfile)).fileName();
 
   float progress = 0.0f;
 
@@ -1546,7 +1546,7 @@ void CaptureContext::ExportCapture(const CaptureFileFormat &fmt, const rdcstr &e
   if(!m_CaptureLocal)
     return;
 
-  QString ext = fmt.extension;
+  QString ext = QString(fmt.extension);
 
   ICaptureFile *local = NULL;
   ICaptureFile *file = NULL;
@@ -1776,10 +1776,10 @@ void CaptureContext::ClearMessages()
 void CaptureContext::SetNotes(const rdcstr &key, const rdcstr &contents)
 {
   // ignore no-op changes
-  if(m_Notes.contains(key) && m_Notes[key] == contents)
+  if(m_Notes.contains(QString(key)) && m_Notes[QString(key)] == QString(contents))
     return;
 
-  m_Notes[key] = contents;
+  m_Notes[QString(key)] = QString(contents);
 
   SetModification(CaptureModifications::Notes);
 
@@ -2070,7 +2070,7 @@ bool CaptureContext::OpenRGPProfile(const rdcstr &filename)
     return false;
   }
 
-  if(filename.isEmpty() || !QFileInfo(filename).exists())
+  if(filename.isEmpty() || !QFileInfo(QString(filename)).exists())
   {
     RDDialog::critical(m_MainWindow, tr("Error opening RGP"),
                        tr("Invalid filename specified to open as RGP Profile\n%1\n"
@@ -2079,7 +2079,7 @@ bool CaptureContext::OpenRGPProfile(const rdcstr &filename)
     return false;
   }
 
-  QString RGPPath = m_Config.ExternalTool_RadeonGPUProfiler;
+  QString RGPPath = QString(m_Config.ExternalTool_RadeonGPUProfiler);
 
   while(!QFileInfo(RGPPath).exists())
   {
@@ -2095,7 +2095,7 @@ bool CaptureContext::OpenRGPProfile(const rdcstr &filename)
     settings.focusItem(lit("ExternalTool_RadeonGPUProfiler"));
     RDDialog::show(&settings);
 
-    RGPPath = m_Config.ExternalTool_RadeonGPUProfiler;
+    RGPPath = QString(m_Config.ExternalTool_RadeonGPUProfiler);
   }
 
   // Make sure the version of RGP specified supports interop. If not, bail.
@@ -2188,7 +2188,7 @@ void CaptureContext::SetResourceCustomName(ResourceId id, const rdcstr &name)
   }
   else
   {
-    m_CustomNames[id] = name;
+    m_CustomNames[id] = QString(name);
   }
 
   SetModification(CaptureModifications::Renames);
@@ -2541,7 +2541,7 @@ IShaderViewer *CaptureContext::EditShader(ResourceId id, ShaderStage stage, cons
     };
 
     viewer = ShaderViewer::EditShader(
-        *this, id, stage, entryPoint, files, knownTool, shaderEncoding, flags, replaceSaveCallback,
+        *this, id, stage, QString(entryPoint), files, knownTool, shaderEncoding, flags, replaceSaveCallback,
         replaceRevertCallback,
         [this](ShaderViewer *view, bool closed) {
           SetModification(CaptureModifications::EditedShaders);
@@ -2556,7 +2556,7 @@ IShaderViewer *CaptureContext::EditShader(ResourceId id, ShaderStage stage, cons
   else
   {
     viewer =
-        ShaderViewer::EditShader(*this, id, stage, entryPoint, files, knownTool, shaderEncoding,
+        ShaderViewer::EditShader(*this, id, stage, QString(entryPoint), files, knownTool, shaderEncoding,
                                  flags, saveCallback, revertCallback, NULL, m_MainWindow->Widget());
   }
 
@@ -2624,7 +2624,7 @@ void CaptureContext::RevertShaderEdit(IShaderViewer *viewer, ResourceId id)
 IShaderViewer *CaptureContext::DebugShader(const ShaderReflection *shader, ResourceId pipeline,
                                            ShaderDebugTrace *trace, const rdcstr &debugContext)
 {
-  return ShaderViewer::DebugShader(*this, shader, pipeline, trace, debugContext,
+  return ShaderViewer::DebugShader(*this, shader, pipeline, trace, QString(debugContext),
                                    m_MainWindow->Widget());
 }
 

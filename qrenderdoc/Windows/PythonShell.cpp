@@ -1031,7 +1031,7 @@ bool PythonShell::LoadScriptFromFilename(rdcstr filename)
 {
   if(!filename.isEmpty())
   {
-    QFile f(filename);
+    QFile f{QString(filename)};
     if(f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
       scriptEditor->setText(f.readAll().data());

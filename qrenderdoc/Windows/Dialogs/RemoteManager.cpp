@@ -154,7 +154,7 @@ void RemoteManager::setRemoteServerLive(RDTreeWidgetItem *node, bool live, bool 
     }
     else if(host.IsVersionMismatch())
     {
-      QString message = host.VersionMismatchError();
+      QString message = QString(host.VersionMismatchError());
       text += QFormatStr(" (%1)").arg(message);
     }
     else if(host.IsBusy())
@@ -250,9 +250,9 @@ void RemoteManager::refreshHost(RDTreeWidgetItem *node)
 
       if(conn)
       {
-        QString target = conn->GetTarget();
-        QString api = conn->GetAPI();
-        QString busy = conn->GetBusyClient();
+        QString target = QString(conn->GetTarget());
+        QString api = QString(conn->GetAPI());
+        QString busy = QString(conn->GetBusyClient());
 
         QString running;
 
@@ -261,7 +261,7 @@ void RemoteManager::refreshHost(RDTreeWidgetItem *node)
         else
           running = tr("Running %1").arg(api);
 
-        RemoteConnect tag(host.Hostname(), host.Name(), nextIdent);
+        RemoteConnect tag(QString(host.Hostname()), QString(host.Name()), nextIdent);
 
         GUIInvoke::call(this, [this, node, target, running, tag]() {
           RDTreeWidgetItem *child = new RDTreeWidgetItem({target, running});
@@ -446,8 +446,8 @@ void RemoteManager::on_hosts_itemSelectionChanged()
     if(ui->refreshAll->isEnabled())
       ui->refreshOne->setEnabled(true);
 
-    ui->runCommand->setText(host.RunCommand());
-    ui->hostname->setText(host.Name());
+    ui->runCommand->setText(QString(host.RunCommand()));
+    ui->hostname->setText(QString(host.Name()));
 
     ui->addUpdateHost->setText(tr("Update"));
 

@@ -162,13 +162,22 @@ CaptureSettings::CaptureSettings(const QVariant &v)
     numQueuedFrames = 0;
 }
 
+QDir appDataLocation()
+{
+  QDir dir{QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)};
+  if (!dir.exists())
+    dir.mkpath(lit("."));
+  return dir;
+}
+
 rdcstr ConfigFilePath(const rdcstr &filename)
 {
-  QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-
-  QDir dir(path);
-  if(!dir.exists())
-    dir.mkdir(lit("."));
-
+  QDir dir{appDataLocation()};
   return QDir::cleanPath(dir.absoluteFilePath(QString(filename)));
+}
+
+rdcstr ConfigFilePath()
+{
+  QDir dir{appDataLocation()};
+  return dir.absolutePath();
 }

@@ -57,7 +57,7 @@ public:
     makeIconStates(dirIcon, Pixmaps::folder(parent));
 
     Renderer.GetHomeFolder(true, [this](const rdcstr &path, const rdcarray<PathEntry> &files) {
-      QString homeDir = path;
+      QString homeDir = QString(path);
 
       if(QChar(QLatin1Char(path[0])).isLetter() && path[1] == ':')
       {
@@ -85,7 +85,7 @@ public:
         FSNode *node = new FSNode();
         node->parent = NULL;
         node->parentIndex = 0;
-        node->file.filename = homeDir.isEmpty() ? "" : "/";
+        node->file.filename = QString(homeDir).isEmpty() ? "" : "/";
         node->file.flags = PathProperty::Directory;
         roots.push_back(node);
 
@@ -432,19 +432,19 @@ private:
   QString makePath(FSNode *node) const
   {
     QChar sep = NTPaths ? QLatin1Char('\\') : QLatin1Char('/');
-    QString ret = node->file.filename;
+    QString ret = QString(node->file.filename);
     FSNode *parent = node->parent;
     // iterate through subdirs but stop before a root
     while(parent && parent->parent)
     {
-      ret = parent->file.filename + sep + ret;
+      ret = QString(parent->file.filename) + sep + ret;
       parent = parent->parent;
     }
 
     if(parent)
     {
       // parent is now a root
-      ret = parent->file.filename + ret;
+      ret = QString(parent->file.filename) + ret;
     }
     ret.replace(QLatin1Char('/'), sep);
     return ret;

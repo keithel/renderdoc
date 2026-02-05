@@ -366,7 +366,7 @@ void ResourceInspector::Inspect(ResourceId id)
   {
     ANALYTIC_SET(UIFeatures.ResourceInspect, true);
 
-    SetResourceNameDisplay(m_Ctx.GetResourceName(id));
+    SetResourceNameDisplay(QString(m_Ctx.GetResourceName(id)));
 
     ui->relatedResources->beginUpdate();
     ui->relatedResources->clear();
@@ -382,7 +382,7 @@ void ResourceInspector::Inspect(ResourceId id)
     QVector<QPair<ResourceId, QString>> derivedResources;
 
     for(ResourceId derived : desc->derivedResources)
-      derivedResources.push_back(qMakePair(derived, m_Ctx.GetResourceName(derived)));
+      derivedResources.push_back(qMakePair(derived, QString(m_Ctx.GetResourceName(derived))));
 
     std::sort(derivedResources.begin(), derivedResources.end(),
               [](const QPair<ResourceId, QString> &a, const QPair<ResourceId, QString> &b) -> bool {
@@ -524,7 +524,7 @@ void ResourceInspector::OnEventChanged(uint32_t eventId)
   {
     m_ResourceCacheID = m_Ctx.ResourceNameCacheID();
     m_ResourceModel->reset();
-    SetResourceNameDisplay(m_Ctx.GetResourceName(m_Resource));
+    SetResourceNameDisplay(QString(m_Ctx.GetResourceName(m_Resource)));
   }
 }
 
@@ -532,7 +532,7 @@ void ResourceInspector::on_renameResource_clicked()
 {
   if(!ui->resourceNameEdit->isVisible())
   {
-    ui->resourceNameEdit->setText(m_Ctx.GetResourceNameUnsuffixed(m_Resource).trimmed());
+    ui->resourceNameEdit->setText(QString(m_Ctx.GetResourceNameUnsuffixed(m_Resource)).trimmed());
     ui->resourceName->hide();
     ui->resourceNameEdit->show();
     ui->resourceNameEdit->setFocus();
@@ -542,9 +542,9 @@ void ResourceInspector::on_renameResource_clicked()
     QString name = ui->resourceNameEdit->text();
 
     // apply the edit
-    m_Ctx.SetResourceCustomName(m_Resource, name);
+    m_Ctx.SetResourceCustomName(m_Resource, rdcstr(name));
 
-    SetResourceNameDisplay(m_Ctx.GetResourceName(m_Resource));
+    SetResourceNameDisplay(QString(m_Ctx.GetResourceName(m_Resource)));
 
     ui->resourceNameEdit->hide();
     ui->resourceName->show();
@@ -570,9 +570,9 @@ void ResourceInspector::on_resourceNameEdit_keyPress(QKeyEvent *event)
 
 void ResourceInspector::on_resetName_clicked()
 {
-  m_Ctx.SetResourceCustomName(m_Resource, QString());
+  m_Ctx.SetResourceCustomName(m_Resource, rdcstr());
 
-  SetResourceNameDisplay(m_Ctx.GetResourceName(m_Resource));
+  SetResourceNameDisplay(QString(m_Ctx.GetResourceName(m_Resource)));
 
   ui->resetName->hide();
 

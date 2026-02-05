@@ -103,7 +103,7 @@ struct CaptureSettings
   VARIANT_CAST(CaptureSettings);
 
   DOCUMENT(R"(The settings for the capture.
-  
+
 :type: renderdoc.CaptureOptions
 )");
   CaptureOptions options;
@@ -2956,6 +2956,14 @@ data.
 )");
 rdcstr ConfigFilePath(const rdcstr &filename);
 
+DOCUMENT(R"(Retrieve the absolute path to the directory where files can be stored with other
+application data.
+
+:return: The absolute path.
+:rtype: str
+)");
+rdcstr ConfigFilePath();
+
 // simple helper for the common case of 'we just need to run this on the replay thread'
 #define INVOKE_MEMFN(function)                                          \
   {                                                                     \
@@ -2965,3 +2973,4 @@ rdcstr ConfigFilePath(const rdcstr &filename);
         meptr->function(r);                                             \
     });                                                                 \
   }
+

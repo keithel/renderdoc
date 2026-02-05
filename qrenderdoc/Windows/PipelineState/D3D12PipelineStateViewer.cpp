@@ -796,7 +796,7 @@ void D3D12PipelineStateViewer::addResourceRow(const D3D12ViewTag &view,
     }
     else if(view.access.index == DescriptorAccess::NoShaderBinding)
     {
-      regname = m_Locations[{view.access.descriptorStore, view.access.byteOffset}].logicalBindName;
+      regname = QString(m_Locations[{view.access.descriptorStore, view.access.byteOffset}].logicalBindName);
     }
 
     uint32_t w = 1, h = 1, d = 1;
@@ -819,7 +819,7 @@ void D3D12PipelineStateViewer::addResourceRow(const D3D12ViewTag &view,
       h = tex->height;
       d = tex->depth;
       a = tex->arraysize;
-      format = tex->format.Name();
+      format = QString(tex->format.Name());
       typeName = ToQStr(tex->type);
 
       if(descriptor.swizzle.red != TextureSwizzle::Red ||
@@ -876,11 +876,11 @@ void D3D12PipelineStateViewer::addResourceRow(const D3D12ViewTag &view,
       if(shaderInput && !shaderInput->isTexture)
       {
         if(shaderInput->variableType.baseType == VarType::Struct)
-          format = lit("struct ") + shaderInput->variableType.name;
+          format = lit("struct ") + QString(shaderInput->variableType.name);
         else if(descriptor.format.compType == CompType::Typeless)
-          format = shaderInput->variableType.name;
+          format = QString(shaderInput->variableType.name);
         else
-          format = descriptor.format.Name();
+          format = QString(descriptor.format.Name());
       }
     }
 
@@ -1189,10 +1189,10 @@ void D3D12PipelineStateViewer::setShaderState(const D3D12Pipe::Shader &stage, RD
     const ShaderDebugInfo &dbg = shaderDetails->debugInfo;
     int entryFile = qMax(0, dbg.entryLocation.fileIndex);
 
-    QString entryName = dbg.entrySourceName;
+    QString entryName = QString(dbg.entrySourceName);
     TruncateStringFromEnd(entryName);
 
-    QString filename = QFileInfo(dbg.files[entryFile].filename).fileName();
+    QString filename = QFileInfo(QString(dbg.files[entryFile].filename)).fileName();
     TruncateStringFromEnd(filename);
 
     shText = QFormatStr("%1() - %2").arg(entryName).arg(filename);
@@ -1324,7 +1324,7 @@ void D3D12PipelineStateViewer::setState()
             ia++)
         {
           if(!QString(state.vertexShader.reflection->inputSignature[ia].semanticName)
-                  .compare(l.semanticName, Qt::CaseInsensitive) &&
+                  .compare(QString(l.semanticName), Qt::CaseInsensitive) &&
              state.vertexShader.reflection->inputSignature[ia].semanticIndex == l.semanticIndex)
           {
             usedSlot = true;
@@ -1695,7 +1695,7 @@ void D3D12PipelineStateViewer::setState()
           if(used.access.index == DescriptorAccess::NoShaderBinding)
           {
             regname =
-                m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName;
+                QString(m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName);
           }
           else if(shaderBind)
           {
@@ -1772,7 +1772,7 @@ void D3D12PipelineStateViewer::setState()
           if(used.access.index == DescriptorAccess::NoShaderBinding)
           {
             regname =
-                m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName;
+                QString(m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName);
           }
           else if(shaderBind)
           {
@@ -2665,7 +2665,7 @@ QVariantList D3D12PipelineStateViewer::exportViewHTML(const Descriptor &descript
   uint32_t h = 1, d = 1;
   uint32_t a = 0;
 
-  QString viewFormat = descriptor.format.Name();
+  QString viewFormat = QString(descriptor.format.Name());
 
   TextureDescription *tex = m_Ctx.GetTexture(descriptor.resource);
   BufferDescription *buf = m_Ctx.GetBuffer(descriptor.resource);
@@ -2679,7 +2679,7 @@ QVariantList D3D12PipelineStateViewer::exportViewHTML(const Descriptor &descript
     h = tex->height;
     d = tex->depth;
     a = tex->arraysize;
-    format = tex->format.Name();
+    format = QString(tex->format.Name());
     viewType = ToQStr(descriptor.type);
     typeName = ToQStr(tex->type);
 
@@ -2722,7 +2722,7 @@ QVariantList D3D12PipelineStateViewer::exportViewHTML(const Descriptor &descript
     h = 0;
     d = 0;
     a = 0;
-    format = descriptor.format.Name();
+    format = QString(descriptor.format.Name());
     viewType = ToQStr(descriptor.type);
     typeName = lit("Buffer");
 
@@ -2749,13 +2749,13 @@ QVariantList D3D12PipelineStateViewer::exportViewHTML(const Descriptor &descript
       if(descriptor.format.compType == CompType::Typeless)
       {
         if(shaderInput->variableType.baseType == VarType::Struct)
-          viewFormat = format = lit("struct ") + shaderInput->variableType.name;
+          viewFormat = format = lit("struct ") + QString(shaderInput->variableType.name);
         else
-          viewFormat = format = shaderInput->variableType.name;
+          viewFormat = format = QString(shaderInput->variableType.name);
       }
       else
       {
-        format = descriptor.format.Name();
+        format = QString(descriptor.format.Name());
       }
     }
 
@@ -2817,7 +2817,7 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
     int i = 0;
     for(const D3D12Pipe::VertexBuffer &vb : ia.vertexBuffers)
     {
-      QString name = m_Ctx.GetResourceName(vb.resourceId);
+      QString name = QString(m_Ctx.GetResourceName(vb.resourceId));
       uint64_t length = 0;
 
       if(vb.resourceId == ResourceId())
@@ -2847,7 +2847,7 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
     xml.writeCharacters(tr("Index Buffer"));
     xml.writeEndElement();
 
-    QString name = m_Ctx.GetResourceName(ia.indexBuffer.resourceId);
+    QString name = QString(m_Ctx.GetResourceName(ia.indexBuffer.resourceId));
     uint64_t length = 0;
 
     if(ia.indexBuffer.resourceId == ResourceId())
@@ -2906,8 +2906,8 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
       int entryFile = qMax(0, dbg.entryLocation.fileIndex);
 
       shadername = QFormatStr("%1() - %2")
-                       .arg(shaderDetails->debugInfo.entrySourceName)
-                       .arg(QFileInfo(dbg.files[entryFile].filename).fileName());
+                       .arg(QString(shaderDetails->debugInfo.entrySourceName))
+                       .arg(QFileInfo(QString(dbg.files[entryFile].filename)).fileName());
     }
 
     xml.writeStartElement(lit("p"));
@@ -2955,14 +2955,14 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
     uint32_t bytesize = shaderCBuf ? shaderCBuf->byteSize : 0;
 
     if(descriptor.resource != ResourceId())
-      name = m_Ctx.GetResourceName(descriptor.resource);
+      name = QString(m_Ctx.GetResourceName(descriptor.resource));
     else
       name = tr("Empty");
 
     QString regname;
     if(used.access.index == DescriptorAccess::NoShaderBinding)
     {
-      regname = m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName;
+      regname = QString(m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName);
     }
     else if(shaderCBuf)
     {
@@ -3061,7 +3061,7 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
       QString regname;
       if(used.access.index == DescriptorAccess::NoShaderBinding)
       {
-        regname = m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName;
+        regname = QString(m_Locations[{used.access.descriptorStore, used.access.byteOffset}].logicalBindName);
       }
       else if(shaderSamp)
       {
@@ -3169,9 +3169,9 @@ void D3D12PipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const D3D12Pipe
     int i = 0;
     for(const D3D12Pipe::StreamOutBind &o : so.outputs)
     {
-      QString name = m_Ctx.GetResourceName(o.resourceId);
+      QString name = QString(m_Ctx.GetResourceName(o.resourceId));
       uint64_t length = 0;
-      QString counterName = m_Ctx.GetResourceName(o.writtenCountResourceId);
+      QString counterName = QString(m_Ctx.GetResourceName(o.writtenCountResourceId));
       uint64_t counterLength = 0;
 
       if(o.resourceId == ResourceId())

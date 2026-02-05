@@ -95,7 +95,7 @@ void CaptureDialog::initWarning(RDLabel *warning)
 
 QString CaptureDialog::mostRecentFilename()
 {
-  return ConfigFilePath(lit("most_recent.cap"));
+  return QString(ConfigFilePath(lit("most_recent.cap")));
 }
 
 void CaptureDialog::PopulateMostRecent()
@@ -110,7 +110,7 @@ void CaptureDialog::PopulateMostRecent()
     {
       ui->loadLastCapture->setEnabled(true);
 
-      QString exe = settings.executable;
+      QString exe = QString(settings.executable);
 
       // if the executable isn't a path, display the full name
       bool fullName = (exe.indexOf(QLatin1Char('/')) < 0 && exe.indexOf(QLatin1Char('\\')) < 0);
@@ -663,13 +663,13 @@ void CaptureDialog::on_exePathBrowse_clicked()
   }
   else if(m_Ctx.Replay().CurrentRemote().IsValid())
   {
-    initDir = m_Ctx.Replay().CurrentRemote().LastCapturePath();
+    initDir = QString(m_Ctx.Replay().CurrentRemote().LastCapturePath());
   }
   else if(!m_Ctx.Config().LastCapturePath.isEmpty())
   {
-    initDir = m_Ctx.Config().LastCapturePath;
+    initDir = QString(m_Ctx.Config().LastCapturePath);
     if(!m_Ctx.Config().LastCaptureExe.isEmpty())
-      initExe = m_Ctx.Config().LastCaptureExe;
+      initExe = QString(m_Ctx.Config().LastCaptureExe);
   }
 
   QString filename;
@@ -707,7 +707,7 @@ void CaptureDialog::on_workDirBrowse_clicked()
   {
     if(m_Ctx.Replay().CurrentRemote().IsValid())
     {
-      initDir = m_Ctx.Replay().CurrentRemote().LastCapturePath();
+      initDir = QString(m_Ctx.Replay().CurrentRemote().LastCapturePath());
     }
     else if(!QDir(initDir).exists())
     {
@@ -715,7 +715,7 @@ void CaptureDialog::on_workDirBrowse_clicked()
       if(dir.exists())
         initDir = dir.absolutePath();
       else if(!m_Ctx.Config().LastCapturePath.isEmpty())
-        initDir = m_Ctx.Config().LastCapturePath;
+        initDir = QString(m_Ctx.Config().LastCapturePath);
       else
         initDir = QString();
     }
@@ -827,9 +827,9 @@ void CaptureDialog::on_toggleGlobal_clicked()
 
     QString exe = ui->exePath->text();
 
-    QString capturefile = m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName());
+    QString capturefile = QString(m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName()));
 
-    ResultDetails success = RENDERDOC_StartGlobalHook(exe, capturefile, Settings().options);
+    ResultDetails success = RENDERDOC_StartGlobalHook(rdcstr(exe), capturefile, Settings().options);
 
     if(!success.OK())
     {
@@ -912,9 +912,9 @@ void CaptureDialog::SetSettings(CaptureSettings settings)
 {
   SetInjectMode(settings.inject);
 
-  ui->exePath->setText(settings.executable);
-  ui->workDirPath->setText(settings.workingDir);
-  ui->cmdline->setText(settings.commandLine);
+  ui->exePath->setText(QString(settings.executable));
+  ui->workDirPath->setText(QString(settings.workingDir));
+  ui->cmdline->setText(QString(settings.commandLine));
 
   SetEnvironmentModifications(settings.environment);
 
@@ -990,7 +990,7 @@ CaptureSettings CaptureDialog::Settings()
 
 void CaptureDialog::SaveSettings(const rdcstr &filename)
 {
-  QFile f(filename);
+  QFile f{QString(filename)};
   if(f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
   {
     QVariantMap values;
@@ -1034,7 +1034,7 @@ void CaptureDialog::fillProcessList()
 
 void CaptureDialog::SetExecutableFilename(const rdcstr &filename, bool remoteSelection)
 {
-  QString fn = filename;
+  QString fn = QString(filename);
 
   if(!m_Ctx.Replay().CurrentRemote().IsValid() && !remoteSelection)
     fn = QDir::toNativeSeparators(QFileInfo(fn).absoluteFilePath());
@@ -1073,12 +1073,12 @@ void CaptureDialog::SetExecutableFilename(const rdcstr &filename, bool remoteSel
 
 void CaptureDialog::SetWorkingDirectory(const rdcstr &dir)
 {
-  ui->workDirPath->setText(dir);
+  ui->workDirPath->setText(QString(dir));
 }
 
 void CaptureDialog::SetCommandLine(const rdcstr &cmd)
 {
-  ui->cmdline->setText(cmd);
+  ui->cmdline->setText(QString(cmd));
 }
 
 QString CaptureDialog::GetCommandLine()
@@ -1095,7 +1095,7 @@ void CaptureDialog::LoadSettings(const rdcstr &filename)
 
 CaptureSettings CaptureDialog::LoadSettingsFromDisk(const rdcstr &filename)
 {
-  QFile f(filename);
+  QFile f{QString(filename)};
   if(f.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     QVariantMap values;

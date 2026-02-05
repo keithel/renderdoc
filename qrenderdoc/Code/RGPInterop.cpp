@@ -264,7 +264,7 @@ void RGPInterop::CreateMapping(const rdcarray<ActionDescription> &actions)
 
       const SDChunk *chunk = file.chunks[ev.chunkIndex];
 
-      if(m_EventNames.contains(chunk->name, Qt::CaseSensitive))
+      if(m_EventNames.contains(QString(chunk->name), Qt::CaseSensitive))
       {
         m_Event2RGP[ev.eventId].interoplinearid = (uint32_t)m_RGP2Event.size();
         rdcstr n = chunk->name;
@@ -285,7 +285,7 @@ void RGPInterop::CreateMapping(const rdcarray<ActionDescription> &actions)
         }
         n += ")";
 
-        m_Event2RGP[ev.eventId].eventname = n;
+        m_Event2RGP[ev.eventId].eventname = QString(n);
 
         m_RGP2Event.push_back(ev.eventId);
       }

@@ -68,7 +68,7 @@ ReplayOptionsSelector::ReplayOptionsSelector(ICaptureContext &ctx, bool actions,
     }
 
     QString vendor = ToQStr(dev.vendor);
-    QString name = dev.name;
+    QString name = QString(dev.name);
 
     // if the name already contains the vendor, don't display it twice
     if(name.contains(vendor, Qt::CaseInsensitive))
@@ -143,7 +143,7 @@ ReplayOptionsSelector::ReplayOptionsSelector(ICaptureContext &ctx, bool actions,
 
   // add recent capture files as options in the dropdown
   for(rdcstr file : m_Ctx.Config().RecentCaptureFiles)
-    ui->captureFile->insertItem(0, file);
+    ui->captureFile->insertItem(0, QString(file));
 
   // default to the last opened file
   ui->captureFile->setCurrentIndex(0);
@@ -197,7 +197,7 @@ void ReplayOptionsSelector::on_captureFileBrowse_clicked()
   }
   else if(!m_Ctx.Config().LastCaptureFilePath.isEmpty())
   {
-    initDir = m_Ctx.Config().LastCaptureFilePath;
+    initDir = QString(m_Ctx.Config().LastCaptureFilePath);
   }
 
   QString filename = RDDialog::getOpenFileName(this, tr("Select capture to open"), initDir,

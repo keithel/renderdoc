@@ -277,7 +277,7 @@ void MarkerBreadcrumbs::ConfigurePathMenu(QMenu *menu, const ActionDescription *
   {
     if((child.flags & ActionFlags::PushMarker) && m_Browser->IsAPIEventVisible(child.eventId))
     {
-      QAction *menuAction = new QAction(child.customName, menu);
+      QAction *menuAction = new QAction(QString(child.customName), menu);
 
       uint32_t eid = child.eventId;
 

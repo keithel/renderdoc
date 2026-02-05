@@ -1181,14 +1181,14 @@ private:
     {
       if(m_UseCustomActionNames)
       {
-        name = action->customName;
+        name = QString(action->customName);
       }
       else
       {
         if((action->flags & (ActionFlags::SetMarker | ActionFlags::PushMarker)) &&
            !(action->flags & (ActionFlags::CommandBufferBoundary | ActionFlags::PassBoundary |
                               ActionFlags::CmdList | ActionFlags::MultiAction)))
-          name = action->customName;
+          name = QString(action->customName);
       }
     }
 
@@ -1213,7 +1213,7 @@ private:
         if(chunk == NULL)
           return QVariant();
 
-        name = chunk->name;
+        name = QString(chunk->name);
 
         // don't display any "ClassName::" prefix. We keep it for the API inspector which is more
         // verbose
@@ -1244,7 +1244,7 @@ private:
             if(m_ShowParameterNames)
             {
               name += lit("<span style='color: %1'>").arg(m_ParamColCode);
-              name += o->name;
+              name += QString(o->name);
               name += lit("</span>");
               name += QLatin1Char('=');
             }
@@ -1457,16 +1457,16 @@ public:
         return filterCompleter_event(ctx, name, parameters);
       };
       */
-      m_BuiltinFilters[lit("action")].completer = [this](ICaptureContext *ctx, QString name,
-                                                         QString parameters) {
+      m_BuiltinFilters[lit("action")].completer = [this](ICaptureContext *ctx, const rdcstr &name,
+                                                         const rdcstr &parameters) {
         return filterCompleter_action(ctx, name, parameters);
       };
-      m_BuiltinFilters[lit("dispatch")].completer = [this](ICaptureContext *ctx, QString name,
-                                                           QString parameters) {
+      m_BuiltinFilters[lit("dispatch")].completer = [this](ICaptureContext *ctx, const rdcstr &name,
+                                                           const rdcstr &parameters) {
         return filterCompleter_dispatch(ctx, name, parameters);
       };
       m_BuiltinFilters[lit("childOf")].completer = m_BuiltinFilters[lit("parent")].completer =
-          [this](ICaptureContext *ctx, QString name, QString parameters) {
+          [this](ICaptureContext *ctx, const rdcstr &name, const rdcstr &parameters) {
             return m_Model->GetMarkerList();
           };
     }
@@ -1503,11 +1503,11 @@ public:
     rdcarray<rdcstr> ret;
 
     if(cb)
-      ret = m_BuiltinFilters[filter].completer(&m_Ctx, filter, params);
+      ret = m_BuiltinFilters[filter].completer(&m_Ctx, rdcstr(filter), rdcstr(params));
 
     QStringList qret;
     for(const rdcstr &s : ret)
-      qret << s;
+      qret << QString(s);
     return qret;
   }
 
@@ -1525,25 +1525,25 @@ public:
                                           IEventBrowser::FilterParseCallback parser,
                                           IEventBrowser::AutoCompleteCallback completer)
   {
-    if(m_BuiltinFilters.contains(name))
+    if(m_BuiltinFilters.contains(QString(name)))
     {
       qCritical() << "Registering filter function" << QString(name) << "which is a builtin function.";
       return false;
     }
 
-    if(m_CustomFilters[name].filter != NULL)
+    if(m_CustomFilters[QString(name)].filter != NULL)
     {
       qCritical() << "Registering filter function" << QString(name) << "which is already registered.";
       return false;
     }
 
-    m_CustomFilters[name] = {description, filter, parser, completer};
+    m_CustomFilters[QString(name)] = {QString(description), filter, parser, completer};
     return true;
   }
 
   static bool UnregisterEventFilterFunction(const rdcstr &name)
   {
-    m_CustomFilters.remove(name);
+    m_CustomFilters.remove(QString(name));
     return true;
   }
 
@@ -1602,7 +1602,7 @@ protected:
       off = name.indexOf(QLatin1Char('<'), off + 1);
     }
 
-    m_VisibleCache[eid] = EvaluateFilterSet(m_Ctx, m_Filters, false, eid, chunk, action, name);
+    m_VisibleCache[eid] = EvaluateFilterSet(m_Ctx, m_Filters, false, eid, chunk, action, QString(name));
     return m_VisibleCache[eid] > 0;
   }
 
@@ -1861,7 +1861,7 @@ Available numeric properties. Compare with <code>$event(prop > 100)</code> or <c
   rdcarray<rdcstr> filterCompleter_event(ICaptureContext *ctx, const rdcstr &name,
                                          const rdcstr &params)
   {
-    QList<Token> tokens = tokenise(params);
+    QList<Token> tokens = tokenise(QString(params));
 
     if(tokens.size() <= 1)
       return {"EID"};
@@ -1873,7 +1873,7 @@ Available numeric properties. Compare with <code>$event(prop > 100)</code> or <c
                                                           ParseTrace &trace)
   {
     // $event(...) => filters on any event property (at the moment only EID)
-    QList<Token> tokens = tokenise(parameters);
+    QList<Token> tokens = tokenise(QString(parameters));
 
     static const QStringList operators = {
         lit("=="), lit("!="), lit("<"), lit(">"), lit("<="), lit(">="),
@@ -2024,7 +2024,7 @@ and these can be queried with a filter such as <code>$action(flags & Clear|Clear
   rdcarray<rdcstr> filterCompleter_action(ICaptureContext *ctx, const rdcstr &name,
                                           const rdcstr &params)
   {
-    QList<Token> tokens = tokenise(params);
+    QList<Token> tokens = tokenise(QString(params));
 
     if(tokens.size() <= 1)
       return {
@@ -2401,7 +2401,7 @@ Otherwise the event is included if it's a dispatch AND if the condition is true.
   rdcarray<rdcstr> filterCompleter_dispatch(ICaptureContext *ctx, const rdcstr &name,
                                             const rdcstr &params)
   {
-    QList<Token> tokens = tokenise(params);
+    QList<Token> tokens = tokenise(QString(params));
 
     if(tokens.size() <= 1)
       return {
@@ -2724,7 +2724,7 @@ nesting level.
       QString errString;
 
       if(innerParser)
-        errString = innerParser(&m_Ctx, n, p);
+        errString = QString(innerParser(&m_Ctx, n, p));
 
       if(!errString.isEmpty())
       {
@@ -3015,7 +3015,7 @@ ParseTrace EventFilterModel::ParseExpressionToFilters(QString expr, rdcarray<Eve
           auto filter = [subFilters](ICaptureContext *ctx, const rdcstr &, const rdcstr &,
                                      uint32_t eid, const SDChunk *chunk,
                                      const ActionDescription *action, const rdcstr &name) {
-            return EvaluateFilterSet(*ctx, subFilters, false, eid, chunk, action, name);
+            return EvaluateFilterSet(*ctx, subFilters, false, eid, chunk, action, QString(name));
           };
 
           filters.push_back(EventFilter(filter, matchType));
@@ -5487,7 +5487,7 @@ void EventBrowser::locationEdit_clicked()
     QString pathString;
     for(const ActionDescription *p : path)
     {
-      QString name = p->GetName(m_Ctx.GetStructuredFile());
+      QString name = QString(p->GetName(m_Ctx.GetStructuredFile()));
       if(name.isEmpty())
         name = lit("unnamed%1").arg(p->eventId);
 
@@ -5567,7 +5567,7 @@ void EventBrowser::location_keyPress(QKeyEvent *e)
       bool found = false;
       for(size_t i = 0; i < actions->size(); i++)
       {
-        QString name = actions->at(i).GetName(m_Ctx.GetStructuredFile());
+        QString name = QString(actions->at(i).GetName(m_Ctx.GetStructuredFile()));
         if(name == el)
         {
           found = true;
@@ -5598,7 +5598,7 @@ void EventBrowser::location_keyPress(QKeyEvent *e)
         QString curActionName;
         if(curAction)
         {
-          curActionName = curAction->GetName(m_Ctx.GetStructuredFile());
+          curActionName = QString(curAction->GetName(m_Ctx.GetStructuredFile()));
           if(curActionName.trimmed().isEmpty())
             curActionName = lit("un-named marker at EID %1").arg(curAction->eventId);
 
@@ -5716,7 +5716,7 @@ bool EventBrowser::UnregisterEventFilterFunction(const rdcstr &name)
 
 void EventBrowser::SetCurrentFilterText(const rdcstr &text)
 {
-  ui->filterExpression->setPlainText(text);
+  ui->filterExpression->setPlainText(QString(text));
   filter_apply();
 }
 

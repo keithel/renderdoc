@@ -37,7 +37,7 @@
 static QString valueString(const SDObject *o)
 {
   if(o->type.basetype == SDBasic::String)
-    return o->data.str;
+    return QString(o->data.str);
 
   if(o->type.basetype == SDBasic::UnsignedInteger)
     return Formatter::Format(o->data.basic.u);
@@ -494,7 +494,7 @@ QWidget *SettingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
 
     SDObject *key = o->FindChild("key");
     if(key)
-      settingName = key->AsString();
+      settingName = QString(key->AsString());
     else
       settingName = tr("Unknown Setting %1").arg(o->name);
 
@@ -588,7 +588,7 @@ QWidget *SettingDelegate::createEditor(QWidget *parent, const QStyleOptionViewIt
       QStringList items;
 
       for(SDObject *c : *val)
-        items << c->data.str;
+        items << QString(c->data.str);
 
       list.setItems(items);
 
@@ -655,7 +655,7 @@ void SettingDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
     else if(val->type.basetype == SDBasic::Float)
       qobject_cast<QDoubleSpinBox *>(editor)->setValue(val->AsDouble());
     else if(val->type.basetype == SDBasic::String)
-      qobject_cast<QLineEdit *>(editor)->setText(val->AsString());
+      qobject_cast<QLineEdit *>(editor)->setText(QString(val->AsString()));
     else
       qWarning() << "Unexpected type of " << QString(o->name) << ": " << ToQStr(val->type.basetype);
   }

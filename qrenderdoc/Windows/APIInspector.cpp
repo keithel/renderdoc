@@ -155,7 +155,7 @@ void APIInspector::addCallstack(rdcarray<rdcstr> calls)
   else
   {
     for(rdcstr &s : calls)
-      ui->callstack->addItem(s);
+      ui->callstack->addItem(QString(s));
   }
   ui->callstack->setUpdatesEnabled(true);
 }

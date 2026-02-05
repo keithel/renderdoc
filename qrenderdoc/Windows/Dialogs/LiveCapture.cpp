@@ -322,7 +322,7 @@ void LiveCapture::openNewWindow_triggered()
   {
     Capture *cap = GetCapture(ui->captures->selectedItems()[0]);
 
-    QString temppath = m_Ctx.TempCaptureFilename(lit("newwindow"));
+    QString temppath = QString(m_Ctx.TempCaptureFilename(lit("newwindow")));
 
     if(!cap->local)
     {
@@ -405,7 +405,7 @@ void LiveCapture::deleteCapture_triggered()
 
     if(!cap->saved)
     {
-      if(cap->path == m_Ctx.GetCaptureFilename())
+      if(cap->path == QString(m_Ctx.GetCaptureFilename()))
       {
         m_Main->takeCaptureOwnership();
         m_Main->CloseCapture();
@@ -963,7 +963,7 @@ void LiveCapture::cleanItems()
 
     if(!cap->saved)
     {
-      if(cap->path == m_Ctx.GetCaptureFilename())
+      if(cap->path == QString(m_Ctx.GetCaptureFilename()))
       {
         m_Main->takeCaptureOwnership();
       }
@@ -1141,7 +1141,7 @@ void LiveCapture::captureAdded(const QString &name, const NewCaptureData &newCap
 
   cap->name = name;
 
-  cap->api = newCapture.api;
+  cap->api = QString(newCapture.api);
 
   cap->timestamp =
       QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0), Qt::UTC).addSecs(newCapture.timestamp).toLocalTime();
@@ -1153,10 +1153,10 @@ void LiveCapture::captureAdded(const QString &name, const NewCaptureData &newCap
 
   cap->remoteID = newCapture.captureId;
   cap->saved = false;
-  cap->path = newCapture.path;
+  cap->path = QString(newCapture.path);
   cap->local = newCapture.local;
   cap->frameNumber = newCapture.frameNumber;
-  cap->title = newCapture.title;
+  cap->title = QString(newCapture.title);
 
   QListWidgetItem *item = new QListWidgetItem();
   item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -1280,7 +1280,7 @@ void LiveCapture::connectionThreadEntry()
   }
 
   uint32_t pid = conn->GetPID();
-  QString target = conn->GetTarget();
+  QString target = QString(conn->GetTarget());
 
   GUIInvoke::call(this, [this, pid, target]() {
     if(!m_Connected.available())
@@ -1361,7 +1361,7 @@ void LiveCapture::connectionThreadEntry()
     if(msg.type == TargetControlMessageType::RegisterAPI)
     {
       GUIInvoke::call(this, [this, msg]() {
-        m_APIs[msg.apiUse.name] =
+        m_APIs[QString(msg.apiUse.name)] =
             APIStatus(msg.apiUse.presenting, msg.apiUse.supported, msg.apiUse.supportMessage);
 
         if(msg.apiUse.presenting && msg.apiUse.supported)
@@ -1400,14 +1400,14 @@ void LiveCapture::connectionThreadEntry()
       NewCaptureData cap = msg.newCapture;
       if(cap.api.isEmpty())
         cap.api = conn->GetAPI();
-      QString name = conn->GetTarget();
+      QString name = QString(conn->GetTarget());
       GUIInvoke::call(this, [this, name, cap]() { captureAdded(name, cap); });
     }
 
     if(msg.type == TargetControlMessageType::CaptureCopied)
     {
       uint32_t capID = msg.newCapture.captureId;
-      QString path = msg.newCapture.path;
+      QString path = QString(msg.newCapture.path);
 
       GUIInvoke::call(this, [this, capID, path]() { captureCopied(capID, path); });
     }

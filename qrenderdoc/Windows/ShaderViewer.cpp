@@ -402,7 +402,7 @@ void ShaderViewer::editShader(ResourceId id, ShaderStage stage, const QString &e
       {
         for(int i = 0; i < ui->compileTool->count(); i++)
         {
-          if(ui->compileTool->itemText(i) == tool.name)
+          if(ui->compileTool->itemText(i) == QString(tool.name))
           {
             ui->compileTool->setCurrentIndex(i);
             break;
@@ -459,8 +459,8 @@ void ShaderViewer::editShader(ResourceId id, ShaderStage stage, const QString &e
   QWidget *sel = NULL;
   for(const rdcstrpair &kv : files)
   {
-    QString name = QFileInfo(kv.first).fileName();
-    QString text = kv.second;
+    QString name = QFileInfo(QString(kv.first)).fileName();
+    QString text = QString(kv.second);
 
     ScintillaEdit *scintilla = AddFileScintilla(name, text, shaderEncoding);
 
@@ -592,7 +592,7 @@ void ShaderViewer::debugShader(const ShaderReflection *shader, ResourceId pipeli
         QStringList targetNames;
         for(int i = 0; i < targets.count(); i++)
         {
-          QString target = targets[i];
+          QString target = QString(targets[i]);
           targetNames << QString(targets[i]);
 
           if(i == 0)
@@ -617,7 +617,7 @@ void ShaderViewer::debugShader(const ShaderReflection *shader, ResourceId pipeli
 
         // read-only applies to us too!
         m_DisassemblyView->setReadOnly(false);
-        SetTextAndUpdateMargin0(m_DisassemblyView, disasm);
+        SetTextAndUpdateMargin0(m_DisassemblyView, QString(disasm));
         m_DisassemblyView->setReadOnly(true);
       });
     });
@@ -668,8 +668,8 @@ void ShaderViewer::debugShader(const ShaderReflection *shader, ResourceId pipeli
         continue;
       }
 
-      QString name = QFileInfo(f.filename).fileName();
-      QString text = f.contents;
+      QString name = QFileInfo(QString(f.filename)).fileName();
+      QString text = QString(f.contents);
 
       ScintillaEdit *scintilla = AddFileScintilla(name, text, m_ShaderDetails->debugInfo.encoding);
 
@@ -1243,9 +1243,9 @@ void ShaderViewer::debugShader(const ShaderReflection *shader, ResourceId pipeli
       {
         QString name = s.varName.isEmpty()
                            ? QString(s.semanticName)
-                           : QFormatStr("%1 (%2)").arg(s.varName).arg(s.semanticName);
+                           : QFormatStr("%1 (%2)").arg(QString(s.varName)).arg(QString(s.semanticName));
         if(s.semanticName.isEmpty())
-          name = s.varName;
+          name = QString(s.varName);
 
         QString semIdx = s.needSemanticIndex ? QString::number(s.semanticIndex) : QString();
 
@@ -1271,9 +1271,9 @@ void ShaderViewer::debugShader(const ShaderReflection *shader, ResourceId pipeli
       {
         QString name = s.varName.isEmpty()
                            ? QString(s.semanticName)
-                           : QFormatStr("%1 (%2)").arg(s.varName).arg(s.semanticName);
+                           : QFormatStr("%1 (%2)").arg(QString(s.varName)).arg(QString(s.semanticName));
         if(s.semanticName.isEmpty())
-          name = s.varName;
+          name = QString(s.varName);
 
         if(multipleStreams)
           name = QFormatStr("Stream %1 : %2").arg(s.stream).arg(name);
@@ -1466,7 +1466,7 @@ void ShaderViewer::updateWindowTitle()
 {
   if(m_ShaderDetails)
   {
-    QString shaderName = m_Ctx.GetResourceNameUnsuffixed(m_ShaderDetails->resourceId);
+    QString shaderName = QString(m_Ctx.GetResourceNameUnsuffixed(m_ShaderDetails->resourceId));
 
     // On D3D12, get the shader name from the pipeline rather than the shader itself
     // for the benefit of D3D12 which doesn't have separate shader objects
@@ -1550,7 +1550,7 @@ ShaderViewer *ShaderViewer::LoadEditor(ICaptureContext &ctx, QVariantMap data,
   }
 
   ShaderViewer *view =
-      EditShader(ctx, id, stage, entryPoint, files, KnownShaderTool::Unknown, encoding, flags,
+      EditShader(ctx, id, stage, QString(entryPoint), files, KnownShaderTool::Unknown, encoding, flags,
                  saveCallback, revertCallback, modifyCallback, parent);
 
   int toolIndex = -1;
@@ -1574,8 +1574,8 @@ ShaderViewer *ShaderViewer::LoadEditor(ICaptureContext &ctx, QVariantMap data,
 
   view->ui->encoding->setCurrentIndex(view->m_Encodings.indexOf(encoding));
   view->ui->compileTool->setCurrentIndex(toolIndex);
-  view->ui->entryFunc->setText(entryPoint);
-  view->ui->toolCommandLine->setText(commandLine);
+  view->ui->entryFunc->setText(QString(entryPoint));
+  view->ui->toolCommandLine->setText(QString(commandLine));
 
   return view;
 }
@@ -1597,7 +1597,7 @@ QVariantMap ShaderViewer::SaveEditor()
       QVariantMap v;
 
       for(const ShaderCompileFlag &flag : m_Flags.flags)
-        v[flag.name] = QString(flag.value);
+        v[QString(flag.name)] = QString(flag.value);
 
       ret[lit("flags")] = v;
     }
@@ -2233,7 +2233,7 @@ void ShaderViewer::disassemble_typeChanged(int index)
         text.assign((const char *)out.result.data(), out.result.size());
 
       m_DisassemblyView->setReadOnly(false);
-      SetTextAndUpdateMargin0(m_DisassemblyView, text);
+      SetTextAndUpdateMargin0(m_DisassemblyView, QString(text));
       m_DisassemblyView->setReadOnly(true);
       m_DisassemblyView->emptyUndoBuffer();
       return;
@@ -2254,7 +2254,7 @@ void ShaderViewer::disassemble_typeChanged(int index)
       text += QFormatStr("%1\n").arg(QString(t));
 
     m_DisassemblyView->setReadOnly(false);
-    SetTextAndUpdateMargin0(m_DisassemblyView, text);
+    SetTextAndUpdateMargin0(m_DisassemblyView, QString(text));
     m_DisassemblyView->setReadOnly(true);
     m_DisassemblyView->emptyUndoBuffer();
     return;
@@ -2273,7 +2273,7 @@ void ShaderViewer::disassemble_typeChanged(int index)
 
     GUIInvoke::call(this, [this, disasm]() {
       m_DisassemblyView->setReadOnly(false);
-      SetTextAndUpdateMargin0(m_DisassemblyView, disasm);
+      SetTextAndUpdateMargin0(m_DisassemblyView, QString(disasm));
       m_DisassemblyView->setReadOnly(true);
       m_DisassemblyView->emptyUndoBuffer();
     });
@@ -2766,7 +2766,7 @@ void ShaderViewer::applyBackwardsChange()
     if(c.before.name.empty())
     {
       m_VariablesChanged.push_back(c.after.name);
-      m_VariableLastUpdate[c.after.name] = m_UpdateID;
+      m_VariableLastUpdate[QString(c.after.name)] = m_UpdateID;
 
       // delete the matching variable (should only be one)
       bool found = false;
@@ -2790,7 +2790,7 @@ void ShaderViewer::applyBackwardsChange()
     else
     {
       m_VariablesChanged.push_back(c.before.name);
-      m_VariableLastUpdate[c.before.name] = m_UpdateID;
+      m_VariableLastUpdate[QString(c.before.name)] = m_UpdateID;
 
       ShaderVariable *v = NULL;
       for(int i = 0; i < m_Variables.count(); i++)
@@ -2856,7 +2856,7 @@ void ShaderViewer::applyForwardsChange()
     if(c.after.name.empty())
     {
       m_VariablesChanged.push_back(c.before.name);
-      m_VariableLastUpdate[c.before.name] = m_UpdateID;
+      m_VariableLastUpdate[QString(c.before.name)] = m_UpdateID;
 
       // delete the matching variable (should only be one)
       bool found = false;
@@ -2880,7 +2880,7 @@ void ShaderViewer::applyForwardsChange()
     else
     {
       m_VariablesChanged.push_back(c.after.name);
-      m_VariableLastUpdate[c.after.name] = m_UpdateID;
+      m_VariableLastUpdate[QString(c.after.name)] = m_UpdateID;
 
       ShaderVariable *v = NULL;
       for(int i = 0; i < m_Variables.count(); i++)
@@ -3013,7 +3013,7 @@ QString ShaderViewer::stringRep(const ShaderVariable &var, uint32_t row)
           }
           else
           {
-            return it->second;
+            return QString(it->second);
           }
         }
         return QString();
@@ -3214,7 +3214,7 @@ QString ShaderViewer::getRegNames(const RDTreeWidgetItem *item, uint32_t swizzle
 
     const ShaderVariable *reg = GetDebugVariable(debugVar);
 
-    return reg->name;
+    return QString(reg->name);
   }
 
   SourceVariableMapping mapping;
@@ -3260,7 +3260,7 @@ QString ShaderViewer::getRegNames(const RDTreeWidgetItem *item, uint32_t swizzle
     const ShaderVariable *reg = GetDebugVariable(mapping.variables[0]);
 
     // return the base name with the suffix/tail that we have
-    ret = reg->name + itemTag.absoluteRefPath.substr(tag.absoluteRefPath.size());
+    ret = QString(reg->name) + QString(itemTag.absoluteRefPath.substr(tag.absoluteRefPath.size()));
 
     if(child < 4)
       ret += lit(".row%1").arg(child);
@@ -3273,7 +3273,7 @@ QString ShaderViewer::getRegNames(const RDTreeWidgetItem *item, uint32_t swizzle
   {
     const ShaderVariable *reg = GetDebugVariable(mapping.variables[0]);
 
-    ret = reg->name;
+    ret = QString(reg->name);
 
     if(mapping.type == VarType::Sampler)
     {
@@ -3694,7 +3694,7 @@ const RDTreeWidgetItem *ShaderViewer::getVarFromPath(const rdcstr &path, const R
     // trailing swizzle
     QRegularExpression swizzleRE(lit("^(.*)\\.([xyzwrgba][xyzwrgba]?[xyzwrgba]?[xyzwrgba]?)$"));
 
-    QRegularExpressionMatch match = swizzleRE.match(path);
+    QRegularExpressionMatch match = swizzleRE.match(QString(path));
 
     // if we exactly match without the swizzle, we can evaluate this node
     if(match.hasMatch() && QString(tag.absoluteRefPath) == match.captured(1))
@@ -3763,7 +3763,7 @@ const RDTreeWidgetItem *ShaderViewer::getVarFromPath(const rdcstr &path, ShaderV
       {
         RDTreeWidgetItem *item = w->topLevelItem(i);
 
-        if(item->text(0) == root)
+        if(item->text(0) == QString(root))
         {
           const RDTreeWidgetItem *ret = getVarFromPath(path, item, var, swizzle);
           if(ret)
@@ -3776,7 +3776,7 @@ const RDTreeWidgetItem *ShaderViewer::getVarFromPath(const rdcstr &path, ShaderV
           {
             RDTreeWidgetItem *child = item->child(j);
 
-            if(child->text(0) == root)
+            if(child->text(0) == QString(root))
             {
               VariableTag tag = item->tag().value<VariableTag>();
 
@@ -4006,7 +4006,7 @@ void ShaderViewer::updateDebugState()
   ui->callstack->clear();
 
   for(const rdcstr &s : state.callstack)
-    ui->callstack->insertItem(0, s);
+    ui->callstack->insertItem(0, QString(s));
 
   {
     LineColumnInfo lineInfo = GetInstInfo(state.nextInstruction).lineInfo;
@@ -4107,7 +4107,7 @@ void ShaderViewer::updateDebugState()
         continue;
 
       for(const DebugVariableReference &r : sourceVar.variables)
-        varsMapped.insert(r.name);
+        varsMapped.insert(QString(r.name));
 
       if(sourceVar.rows == 0 || sourceVar.columns == 0)
         continue;
@@ -4127,7 +4127,7 @@ void ShaderViewer::updateDebugState()
     for(int i = 0; i < m_Trace->constantBlocks.count(); i++)
     {
       rdcstr name = m_Trace->constantBlocks[i].name;
-      if(varsMapped.contains(name))
+      if(varsMapped.contains(QString(name)))
         continue;
 
       RDTreeWidgetItem *node = new RDTreeWidgetItem({name, name, lit("Constant"), QString()});
@@ -4139,7 +4139,7 @@ void ShaderViewer::updateDebugState()
            m_Trace->constantBlocks[i].members[j].columns > 0)
         {
           rdcstr childname = name + "." + m_Trace->constantBlocks[i].members[j].name;
-          if(!varsMapped.contains(name))
+          if(!varsMapped.contains(QString(name)))
           {
             RDTreeWidgetItem *child = new RDTreeWidgetItem(
                 {name, name, lit("Constant"), stringRep(m_Trace->constantBlocks[i].members[j])});
@@ -4181,7 +4181,7 @@ void ShaderViewer::updateDebugState()
     {
       const ShaderVariable &input = m_Trace->inputs[i];
 
-      if(varsMapped.contains(input.name))
+      if(varsMapped.contains(QString(input.name)))
         continue;
 
       if(input.rows > 0 || input.columns > 0)
@@ -4200,7 +4200,7 @@ void ShaderViewer::updateDebugState()
     {
       const ShaderVariable &ro = m_Trace->readOnlyResources[i];
 
-      if(varsMapped.contains(ro.name))
+      if(varsMapped.contains(QString(ro.name)))
         continue;
 
       if(ro.IsDirectAccess())
@@ -4267,7 +4267,7 @@ void ShaderViewer::updateDebugState()
     {
       const ShaderVariable &rw = m_Trace->readWriteResources[i];
 
-      if(varsMapped.contains(rw.name))
+      if(varsMapped.contains(QString(rw.name)))
         continue;
 
       if(rw.IsDirectAccess())
@@ -4334,7 +4334,7 @@ void ShaderViewer::updateDebugState()
     {
       const ShaderVariable &s = m_Trace->samplers[i];
 
-      if(varsMapped.contains(s.name))
+      if(varsMapped.contains(QString(s.name)))
         continue;
 
       if(s.IsDirectAccess())
@@ -4527,7 +4527,7 @@ bool ShaderViewer::updateWatchVariable(RDTreeWidgetItem *watchItem, const RDTree
 
     // see which members are in the variable
     for(int i = 0; i < var.members.count(); i++)
-      current.insert(var.members[i].name);
+      current.insert(QString(var.members[i].name));
 
     // if there are no new members in the variable, the existing set will contain the current set
     if(!existing.contains(current))
@@ -4544,7 +4544,7 @@ bool ShaderViewer::updateWatchVariable(RDTreeWidgetItem *watchItem, const RDTree
     {
       int idx = -1;
 
-      QString name = var.members[i].name;
+      QString name = QString(var.members[i].name);
 
       for(int j = 0; j < watchItem->childCount(); j++)
       {
@@ -4949,7 +4949,7 @@ RDTreeWidgetItem *ShaderViewer::makeSourceVariableNode(const ShaderVariable &var
 RDTreeWidgetItem *ShaderViewer::makeSourceVariableNode(const SourceVariableMapping &l,
                                                        int globalVarIdx, int localVarIdx)
 {
-  QString localName = l.name;
+  QString localName = QString(l.name);
   QString typeName;
   QString value;
 
@@ -5314,7 +5314,7 @@ bool ShaderViewer::HasChanged(rdcstr debugVarName) const
 
 uint32_t ShaderViewer::CalcUpdateID(uint32_t prevID, rdcstr debugVarName) const
 {
-  return qMax(prevID, m_VariableLastUpdate[debugVarName]);
+  return qMax(prevID, m_VariableLastUpdate[QString(debugVarName)]);
 }
 
 // this function is a bit messy, we want a base recursion container of either QList or rdcarray
@@ -5654,7 +5654,7 @@ void ShaderViewer::ShowErrors(const rdcstr &errors)
   if(m_Errors)
   {
     m_Errors->setReadOnly(false);
-    SetTextAndUpdateMargin0(m_Errors, errors);
+    SetTextAndUpdateMargin0(m_Errors, QString(errors));
     m_Errors->setReadOnly(true);
 
     if(!errors.isEmpty())
@@ -6012,7 +6012,7 @@ bool ShaderViewer::eventFilter(QObject *watched, QEvent *event)
       if(item)
       {
         VariableTag tag = item->tag().value<VariableTag>();
-        showVariableTooltip(tag.absoluteRefPath);
+        showVariableTooltip(QString(tag.absoluteRefPath));
       }
     }
   }
@@ -6226,7 +6226,7 @@ void ShaderViewer::PopulateCompileTools()
     if(tool.input != encoding || accepted.indexOf(tool.output) < 0)
       continue;
 
-    strs << tool.name;
+    strs << QString(tool.name);
   }
 
   // if we can pass in the shader source as-is, add a built-in option
@@ -6267,7 +6267,7 @@ void ShaderViewer::PopulateCompileToolParameters()
     {
       if(QString(tool.name) == ui->compileTool->currentText())
       {
-        ui->toolCommandLine->setPlainText(tool.DefaultArguments());
+        ui->toolCommandLine->setPlainText(QString(tool.DefaultArguments()));
         ui->toolCommandLine->setEnabled(true);
         break;
       }
@@ -6360,7 +6360,7 @@ bool ShaderViewer::ProcessIncludeDirectives(QString &source, const rdcstrpairs &
         }
         else
         {
-          fileText = kv.second;
+          fileText = QString(kv.second);
 
           // recurse and do not allow this to be re-included. This assumes #pragma once / header
           // guard behaviour to prevent recursion but allows the same file to be included multiple
@@ -6375,12 +6375,12 @@ bool ShaderViewer::ProcessIncludeDirectives(QString &source, const rdcstrpairs &
 
     if(fileText.isEmpty())
     {
-      QString search = QFileInfo(fname).fileName();
+      QString search = QFileInfo(QString(fname)).fileName();
 
       // if not, try and find the same filename (this is not proper include handling!)
       for(const rdcstrpair &kv : files)
       {
-        if(QFileInfo(kv.first).fileName().compare(search, Qt::CaseInsensitive) == 0)
+        if(QFileInfo(QString(kv.first)).fileName().compare(search, Qt::CaseInsensitive) == 0)
         {
           if(exclude.contains(kv.first))
           {
@@ -6388,7 +6388,7 @@ bool ShaderViewer::ProcessIncludeDirectives(QString &source, const rdcstrpairs &
           }
           else
           {
-            fileText = kv.second;
+            fileText = QString(kv.second);
 
             // recurse and do not allow this to be re-included. This assumes #pragma once / header
             // guard behaviour to prevent recursion but allows the same file to be included multiple
@@ -6488,7 +6488,7 @@ void ShaderViewer::on_refresh_clicked()
     if(files.isEmpty())
       return;
 
-    QString source = files[0].second;
+    QString source = QString(files[0].second);
 
     if(encoding == ShaderEncoding::HLSL || encoding == ShaderEncoding::Slang ||
        encoding == ShaderEncoding::GLSL)

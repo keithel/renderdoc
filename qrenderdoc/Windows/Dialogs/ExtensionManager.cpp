@@ -58,7 +58,7 @@ ExtensionManager::ExtensionManager(ICaptureContext &ctx)
 
   QObject::connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
-  QString extensionFolder = ConfigFilePath("extensions");
+  QString extensionFolder = QString(ConfigFilePath("extensions"));
 
   m_Extensions = m_Ctx.Extensions().GetInstalledExtensions();
 
@@ -108,7 +108,7 @@ void ExtensionManager::on_reload_clicked()
     if(!e.name.isEmpty())
     {
       // if the load succeeds, set us as checked. Otherwise, unchecked
-      QString errors = m_Ctx.Extensions().LoadExtension(e.package);
+      QString errors = QString(m_Ctx.Extensions().LoadExtension(QString(e.package)));
       if(errors.isEmpty())
       {
         item->setCheckState(2, Qt::Checked);
@@ -147,7 +147,7 @@ void ExtensionManager::on_openLocation_clicked()
     const ExtensionMetadata &e = m_Extensions[idx];
     if(!e.name.isEmpty())
     {
-      QDesktopServices::openUrl(QFileInfo(e.filePath).absoluteFilePath());
+      QDesktopServices::openUrl(QFileInfo(QString(e.filePath)).absoluteFilePath());
     }
   }
 }
@@ -224,10 +224,10 @@ void ExtensionManager::update_currentItem(RDTreeWidgetItem *item)
     {
       QRegularExpression authRE(lit("^(.*) <(.*)>$"));
 
-      ui->name->setText(e.name);
-      ui->version->setText(e.version);
-      ui->URL->setText(QFormatStr("<a href=\"%1\">%1</a>").arg(e.extensionURL));
-      ui->description->setText(e.description);
+      ui->name->setText(QString(e.name));
+      ui->version->setText(QString(e.version));
+      ui->URL->setText(QFormatStr("<a href=\"%%1\">%%1</a>").arg(QString(e.extensionURL)));
+      ui->description->setText(QString(e.description));
 
       QRegularExpressionMatch match = authRE.match(QString(e.author).trimmed());
 
@@ -235,7 +235,7 @@ void ExtensionManager::update_currentItem(RDTreeWidgetItem *item)
         ui->author->setText(
             QFormatStr("<a href=\"mailto:%2\">%1</a>").arg(match.captured(1)).arg(match.captured(2)));
       else
-        ui->author->setText(e.author);
+        ui->author->setText(QString(e.author));
 
       bool loaded = item->checkState(2) == Qt::Checked;
       ui->reload->setEnabled(true);

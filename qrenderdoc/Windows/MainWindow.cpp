@@ -500,24 +500,24 @@ MainWindow::MainWindow(ICaptureContext &ctx) : QMainWindow(NULL), ui(new Ui::Mai
 
       if(fmt.openSupported)
       {
-        QAction *action = new QAction(fmt.name, this);
+        QAction *action = new QAction(QString(fmt.name), this);
 
         QObject::connect(action, &QAction::triggered, [this, fmt]() { importCapture(fmt); });
 
         if(!fmt.description.isEmpty())
-          action->setToolTip(fmt.description);
+          action->setToolTip(QString(fmt.description));
 
         ui->menu_Import_From->addAction(action);
       }
 
       if(fmt.convertSupported)
       {
-        QAction *action = new QAction(fmt.name, this);
+        QAction *action = new QAction(QString(fmt.name), this);
 
         QObject::connect(action, &QAction::triggered, [this, fmt]() { exportCapture(fmt); });
 
         if(!fmt.description.isEmpty())
-          action->setToolTip(fmt.description);
+          action->setToolTip(QString(fmt.description));
 
         ui->menu_Export_As->addAction(action);
       }
@@ -584,7 +584,7 @@ QString MainWindow::GetLayoutPath(int layout)
   if(layout > 0)
     filename = lit("Layout%1.config").arg(layout);
 
-  return ConfigFilePath(filename);
+  return QString(ConfigFilePath(filename));
 }
 
 void MainWindow::on_action_Exit_triggered()
@@ -598,7 +598,7 @@ void MainWindow::on_action_Open_Capture_triggered()
     return;
 
   QString filename = RDDialog::getOpenFileName(
-      this, tr("Select file to open"), m_Ctx.Config().LastCaptureFilePath,
+      this, tr("Select file to open"), QString(m_Ctx.Config().LastCaptureFilePath),
       tr("Capture Files (*.rdc);;Image Files (*.dds *.hdr *.exr *.bmp *.jpg "
          "*.jpeg *.png *.tga *.gif *.psd);;All Files (*)"));
 
@@ -652,8 +652,8 @@ void MainWindow::importCapture(const CaptureFileFormat &fmt)
   if(!PromptCloseCapture())
     return;
 
-  QString ext = fmt.extension;
-  QString title = fmt.name;
+  QString ext = QString(fmt.extension);
+  QString title = QString(fmt.name);
 
   QString filename =
       RDDialog::getOpenFileName(this, tr("Select file to open"), QString(),
@@ -661,7 +661,7 @@ void MainWindow::importCapture(const CaptureFileFormat &fmt)
 
   if(!filename.isEmpty())
   {
-    QString rdcfile = m_Ctx.TempCaptureFilename(lit("imported_") + ext);
+    QString rdcfile = QString(m_Ctx.TempCaptureFilename(lit("imported_") + ext));
 
     bool success = m_Ctx.ImportCapture(fmt, filename, rdcfile);
 
@@ -726,7 +726,7 @@ void MainWindow::OnCaptureTrigger(const QString &exe, const QString &workingDir,
       return;
     }
 
-    QString capturefile = m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName());
+    QString capturefile = QString(m_Ctx.TempCaptureFilename(QFileInfo(exe).baseName()));
 
     ExecuteResult ret =
         m_Ctx.Replay().ExecuteAndInject(exe, workingDir, cmdLine, env, capturefile, opts);
@@ -758,8 +758,8 @@ void MainWindow::OnCaptureTrigger(const QString &exe, const QString &workingDir,
 
       LiveCapture *live = new LiveCapture(
           m_Ctx,
-          m_Ctx.Replay().CurrentRemote().IsValid() ? m_Ctx.Replay().CurrentRemote().Hostname() : "",
-          m_Ctx.Replay().CurrentRemote().IsValid() ? m_Ctx.Replay().CurrentRemote().Name() : "",
+          m_Ctx.Replay().CurrentRemote().IsValid() ? QString(m_Ctx.Replay().CurrentRemote().Hostname()) : QString(),
+          m_Ctx.Replay().CurrentRemote().IsValid() ? QString(m_Ctx.Replay().CurrentRemote().Name()) : QString(),
           ret.ident, this, this);
       ShowLiveCapture(live);
       callback(live);
@@ -786,7 +786,7 @@ void MainWindow::OnInjectTrigger(uint32_t PID, const rdcarray<EnvironmentModific
     return;
 
   LambdaThread *th = new LambdaThread([this, PID, env, name, opts, callback]() {
-    QString capturefile = m_Ctx.TempCaptureFilename(name);
+    QString capturefile = QString(m_Ctx.TempCaptureFilename(name));
 
     ExecuteResult ret = RENDERDOC_InjectIntoProcess(PID, env, capturefile, opts, false);
 
@@ -844,8 +844,8 @@ void MainWindow::LoadCapture(const QString &filename, const ReplayOptions &opts,
         return;
       }
 
-      driver = file->DriverName();
-      machineIdent = file->RecordedMachineIdent();
+      driver = QString(file->DriverName());
+      machineIdent = QString(file->RecordedMachineIdent());
       support = file->LocalReplaySupport();
 
       file->Shutdown();
@@ -957,7 +957,7 @@ void MainWindow::LoadCapture(const QString &filename, const ReplayOptions &opts,
 
       if(remoteReplay && local)
       {
-        fileToLoad = m_Ctx.Replay().CopyCaptureToRemote(filename, this);
+        fileToLoad = QString(m_Ctx.Replay().CopyCaptureToRemote(filename, this));
 
         // deliberately leave local as true so that we keep referring to the locally saved capture
 
@@ -1009,7 +1009,7 @@ QString MainWindow::GetSavePath(QString title, QString filter)
   if(!m_Ctx.Config().DefaultCaptureSaveDirectory.isEmpty())
   {
     if(m_LastSaveCapturePath.isEmpty())
-      dir = m_Ctx.Config().DefaultCaptureSaveDirectory;
+      dir = QString(m_Ctx.Config().DefaultCaptureSaveDirectory);
     else
       dir = m_LastSaveCapturePath;
   }
@@ -1046,7 +1046,7 @@ bool MainWindow::PromptSaveCaptureAs()
 
 bool MainWindow::SaveCurrentCapture(QString saveFilename)
 {
-  QString origFilename = m_Ctx.GetCaptureFilename();
+  QString origFilename = QString(m_Ctx.GetCaptureFilename());
 
   bool success = m_Ctx.SaveCaptureTo(saveFilename);
 
@@ -1094,7 +1094,7 @@ bool MainWindow::PromptCloseCapture()
 
   if(m_OwnTempCapture && m_Ctx.IsCaptureTemporary())
   {
-    QString temppath = m_Ctx.GetCaptureFilename();
+    QString temppath = QString(m_Ctx.GetCaptureFilename());
     caplocal = m_Ctx.IsCaptureLocal();
 
     QMessageBox::StandardButton res =
@@ -1180,7 +1180,7 @@ bool MainWindow::PromptCloseCapture()
 
 void MainWindow::CloseCapture()
 {
-  QString path = m_Ctx.GetCaptureFilename();
+  QString path = QString(m_Ctx.GetCaptureFilename());
   bool local = m_Ctx.IsCaptureLocal();
   bool temp = m_Ctx.IsCaptureTemporary();
 
@@ -1234,7 +1234,7 @@ void MainWindow::SetTitle(const QString &filename)
 
 void MainWindow::SetTitle()
 {
-  SetTitle(m_Ctx.GetCaptureFilename());
+  SetTitle(QString(m_Ctx.GetCaptureFilename()));
 }
 
 bool MainWindow::HandleMismatchedVersions()
@@ -1293,7 +1293,7 @@ void MainWindow::PopulateRecentCaptureFiles()
   int idx = 1;
   for(int i = m_Ctx.Config().RecentCaptureFiles.count() - 1; i >= 0; i--)
   {
-    QString filename = m_Ctx.Config().RecentCaptureFiles[i];
+    QString filename = QString(m_Ctx.Config().RecentCaptureFiles[i]);
     QString filenameDisplay = filename;
     filenameDisplay.replace(QLatin1Char('&'), lit("&&"));
     ui->menu_Recent_Capture_Files->addAction(QFormatStr("&%1 %2").arg(idx).arg(filenameDisplay),
@@ -1344,7 +1344,7 @@ void MainWindow::PopulateRecentCaptureSettings()
   int idx = 1;
   for(int i = m_Ctx.Config().RecentCaptureSettings.count() - 1; i >= 0; i--)
   {
-    QString filename = m_Ctx.Config().RecentCaptureSettings[i];
+    QString filename = QString(m_Ctx.Config().RecentCaptureSettings[i]);
     QString filenameDisplay = filename;
     filenameDisplay.replace(QLatin1Char('&'), lit("&&"));
     ui->menu_Recent_Capture_Settings->addAction(QFormatStr("&%1 %2").arg(idx).arg(filenameDisplay),
@@ -1610,12 +1610,12 @@ QMenu *MainWindow::GetBaseMenu(WindowMenu base, rdcstr name)
     if(!m->objectName().isEmpty())
       continue;
 
-    if(m->text() == name)
+    if(m->text() == QString(name))
       return m->menu();
   }
 
   // no existing menu, add a new one
-  QMenu *menu = new QMenu(name, this);
+  QMenu *menu = new QMenu(QString(name), this);
   menu->setIcon(Icons::plugin());
   ui->menuBar->insertMenu(ui->menu_Help->menuAction(), menu);
   return menu;
@@ -1807,7 +1807,7 @@ void MainWindow::setProgress(float val)
 
 void MainWindow::setCaptureHasErrors(bool errors)
 {
-  QString filename = QFileInfo(m_Ctx.GetCaptureFilename()).fileName();
+  QString filename = QFileInfo(QString(m_Ctx.GetCaptureFilename())).fileName();
   if(errors)
   {
     const QPixmap &del = Pixmaps::del(this);
@@ -2021,7 +2021,7 @@ void MainWindow::setRemoteHost(int hostIdx)
     // allow live captures to this host to stay open, that way
     // we can connect to a live capture, then switch into that
     // context
-    if(host.IsValid() && live->hostname() == host.Hostname())
+    if(host.IsValid() && live->hostname() == QString(host.Hostname()))
       continue;
 
     // if the user previously selected 'no to all' in the save prompts below, apply that to all
@@ -2167,11 +2167,11 @@ void MainWindow::setRemoteHost(int hostIdx)
         {
           contextChooser->setIcon(Icons::cross());
           contextChooser->setText(tr("Replay Context: %1").arg(tr("Local")));
-          statusText->setText(tr("Connection failed: %1").arg(result.Message()));
+          statusText->setText(tr("Connection failed: %1").arg(QString(result.Message())));
         }
         else if(host.IsVersionMismatch())
         {
-          statusText->setText(host.VersionMismatchError());
+          statusText->setText(QString(host.VersionMismatchError()));
         }
         else if(host.IsBusy())
         {
@@ -2241,7 +2241,7 @@ void MainWindow::OnCaptureLoaded()
   statusProgress->setVisible(false);
 
   // don't allow capture recompress on opened images
-  QString driver = m_Ctx.Replay().GetCaptureAccess()->DriverName();
+  QString driver = QString(m_Ctx.Replay().GetCaptureAccess()->DriverName());
   bool is_image = driver == lit("Image");
   ui->action_Recompress_Capture->setEnabled(!is_image);
 
@@ -2319,7 +2319,7 @@ void MainWindow::OnEventChanged(uint32_t eventId)
 
 void MainWindow::RegisterShortcut(const rdcstr &shortcut, QWidget *widget, ShortcutCallback callback)
 {
-  QKeySequence ks = QKeySequence::fromString(shortcut);
+  QKeySequence ks = QKeySequence::fromString(QString(shortcut));
 
   if(widget)
   {
@@ -2369,14 +2369,14 @@ void MainWindow::UnregisterShortcut(const rdcstr &shortcut, QWidget *widget)
     }
     else
     {
-      QKeySequence ks = QKeySequence::fromString(shortcut);
+      QKeySequence ks = QKeySequence::fromString(QString(shortcut));
 
       m_WidgetShortcutCallbacks[ks].remove(widget);
     }
   }
   else
   {
-    QKeySequence ks = QKeySequence::fromString(shortcut);
+    QKeySequence ks = QKeySequence::fromString(QString(shortcut));
 
     m_GlobalShortcutCallbacks.remove(ks);
   }
@@ -2801,11 +2801,11 @@ void MainWindow::on_action_Create_RGP_Profile_triggered()
   RDDialog::show(&popup);
 
   qInfo() << "RGP Capture created at" << QString(path);
-  m_Ctx.OpenRGPProfile(path);
+  m_Ctx.OpenRGPProfile(QString(path));
 
   if(!path.isEmpty())
   {
-    QFile f(path);
+    QFile f{QString(path)};
     if(f.open(QIODevice::ReadOnly))
     {
       QByteArray contents = f.readAll();
@@ -3247,9 +3247,9 @@ void MainWindow::showLaunchError(ResultDetails result)
               .arg(result.Message());
       break;
     case ResultCode::AndroidABINotFound:
-      message = tr("%1.\n\nPlease check device connection and result.").arg(result.Message());
+      message = tr("%1.\n\nPlease check device connection and result.").arg(QString(result.Message()));
       break;
-    case ResultCode::AndroidAPKFolderNotFound: message = result.Message(); break;
+    case ResultCode::AndroidAPKFolderNotFound: message = QString(result.Message()); break;
     case ResultCode::AndroidAPKInstallFailed:
       message = tr("%1.\n\nPlease check that your device is connected and accessible to "
                    "adb, and that installing APKs over USB is allowed.")

@@ -68,10 +68,10 @@ EnvironmentEditor::EnvironmentEditor(QWidget *parent)
   QObject::connect(ui->appendValue, &QRadioButton::toggled, separatorLambda);
 
   ui->separator->addItems({
-      ToQStr(EnvSep::Platform),
-      ToQStr(EnvSep::SemiColon),
-      ToQStr(EnvSep::Colon),
-      ToQStr(EnvSep::NoSep),
+      QString(ToStr(EnvSep::Platform)),
+      QString(ToStr(EnvSep::SemiColon)),
+      QString(ToStr(EnvSep::Colon)),
+      QString(ToStr(EnvSep::NoSep)),
   });
 
   ui->separator->setCurrentIndex(0);
@@ -134,8 +134,8 @@ void EnvironmentEditor::on_variables_currentItemChanged(RDTreeWidgetItem *curren
 
   if(!mod.name.empty())
   {
-    ui->name->setText(mod.name);
-    ui->value->setText(mod.value);
+    ui->name->setText(QString(mod.name));
+    ui->value->setText(QString(mod.value));
     ui->separator->setCurrentIndex((int)mod.sep);
 
     if(mod.mod == EnvMod::Set)

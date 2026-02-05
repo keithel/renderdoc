@@ -137,7 +137,7 @@ void TimelineBar::HighlightResourceUsage(ResourceId id)
 {
   m_ID = id;
   m_UsageEvents.clear();
-  m_UsageTarget = m_Ctx.GetResourceName(id);
+  m_UsageTarget = QString(m_Ctx.GetResourceName(id));
 
   m_Ctx.Replay().AsyncInvoke([this, id](IReplayController *r) {
     rdcarray<EventUsage> usage = r->GetUsage(id);
@@ -161,7 +161,7 @@ void TimelineBar::HighlightHistory(ResourceId id, const rdcarray<PixelModificati
 
   if(id != ResourceId())
   {
-    m_HistoryTarget = m_Ctx.GetResourceName(id);
+    m_HistoryTarget = QString(m_Ctx.GetResourceName(id));
 
     for(const PixelModification &mod : history)
       m_HistoryEvents << mod;
@@ -208,9 +208,9 @@ void TimelineBar::OnCaptureLoaded()
 void TimelineBar::OnEventChanged(uint32_t eventId)
 {
   if(!m_HistoryTarget.isEmpty())
-    m_HistoryTarget = m_Ctx.GetResourceName(m_ID);
+    m_HistoryTarget = QString(m_Ctx.GetResourceName(m_ID));
   if(!m_UsageTarget.isEmpty())
-    m_UsageTarget = m_Ctx.GetResourceName(m_ID);
+    m_UsageTarget = QString(m_Ctx.GetResourceName(m_ID));
 
   viewport()->update();
 }
@@ -1058,7 +1058,7 @@ uint32_t TimelineBar::processActions(QVector<Marker> &markers, QVector<uint32_t>
       markers.push_back(Marker());
       Marker &m = markers.back();
 
-      m.name = a.customName;
+      m.name = QString(a.customName);
       m.eidStart = a.eventId;
       if(a.IsFakeMarker())
         m.eidStart = a.children[0].events[0].eventId;

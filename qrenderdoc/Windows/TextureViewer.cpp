@@ -1184,7 +1184,7 @@ void TextureViewer::UI_UpdateTextureDetails()
     }
     else if(followtex || followbuf)
     {
-      QString name = m_Ctx.GetResourceName(followID);
+      QString name = QString(m_Ctx.GetResourceName(followID));
 
       switch(m_Following.Type)
       {
@@ -1224,7 +1224,7 @@ void TextureViewer::UI_UpdateTextureDetails()
     ui->renderContainer->setWindowTitle(title);
   }
 
-  ui->texStatusName->setText(m_Ctx.GetResourceName(current.resourceId) + lit(" - "));
+  ui->texStatusName->setText(QString(m_Ctx.GetResourceName(current.resourceId)) + lit(" - "));
 
   status = QString();
 
@@ -1257,7 +1257,7 @@ void TextureViewer::UI_UpdateTextureDetails()
 
   ui->texStatusDim->setText(status);
 
-  status = current.format.Name();
+  status = QString(current.format.Name());
 
   const bool yuv = (current.format.type == ResourceFormatType::YUV8 ||
                     current.format.type == ResourceFormatType::YUV10 ||
@@ -2090,7 +2090,7 @@ void TextureViewer::ViewTexture(ResourceId ID, CompType typeCast, bool focus)
   if(tex)
   {
     QWidget *lockedContainer = new QWidget(this);
-    lockedContainer->setWindowTitle(m_Ctx.GetResourceName(ID));
+    lockedContainer->setWindowTitle(QString(m_Ctx.GetResourceName(ID)));
     lockedContainer->setProperty("id", QVariant::fromValue(ID));
 
     ToolWindowManagerArea *textureTabs = ui->dockarea->areaOf(ui->renderContainer);
@@ -2365,7 +2365,7 @@ void TextureViewer::OpenResourceContextMenu(ResourceId id, bool input,
 
   if(m_Ctx.CurPipelineState().SupportsBarriers())
   {
-    imageLayout.setText(tr("Image is in layout ") + m_Ctx.CurPipelineState().GetResourceLayout(id));
+    imageLayout.setText(tr("Image is in layout ") + QString(m_Ctx.CurPipelineState().GetResourceLayout(id)));
     contextMenu.addAction(&imageLayout);
     contextMenu.addSeparator();
   }
@@ -2423,10 +2423,10 @@ void TextureViewer::InitResourcePreview(ResourcePreview *prev, Descriptor res, b
     {
       if(!fullname.isEmpty())
         fullname += lit(" = ");
-      fullname += m_Ctx.GetResourceName(res.resource);
+      fullname += QString(m_Ctx.GetResourceName(res.resource));
     }
     if(fullname.isEmpty())
-      fullname = m_Ctx.GetResourceName(res.resource);
+      fullname = QString(m_Ctx.GetResourceName(res.resource));
 
     prev->setResourceName(fullname);
 
@@ -2566,7 +2566,7 @@ void TextureViewer::InitStageResourcePreviews(ShaderStage stage,
       if(desc.access.index < shaderInterface.size())
       {
         const ShaderResource &bind = shaderInterface[desc.access.index];
-        bindName = bind.name;
+        bindName = QString(bind.name);
 
         if(bind.bindArraySize > 1)
         {
@@ -2960,7 +2960,7 @@ void TextureViewer::OnCaptureLoaded()
     GUIInvoke::call(this, [this]() { OnEventChanged(m_Ctx.CurEvent()); });
   });
 
-  m_Watcher = new QFileSystemWatcher({QString(ConfigFilePath(QString()))}, this);
+  m_Watcher = new QFileSystemWatcher({QString(ConfigFilePath())}, this);
 
   QObject::connect(m_Watcher, &QFileSystemWatcher::fileChanged, this,
                    &TextureViewer::customShaderModified);
@@ -3195,7 +3195,7 @@ void TextureViewer::OnEventChanged(uint32_t eventId)
   for(QWidget *w : m_LockedTabs.values())
   {
     ResourceId id = w->property("id").value<ResourceId>();
-    w->setWindowTitle(m_Ctx.GetResourceName(id));
+    w->setWindowTitle(QString(m_Ctx.GetResourceName(id)));
   }
 
   rdcarray<Descriptor> RTs = Following::GetOutputTargets(m_Ctx);
@@ -3318,7 +3318,7 @@ void TextureViewer::OnEventChanged(uint32_t eventId)
       for(size_t i = 0; i < m_DescriptorThumbUpdates.size(); i++)
       {
         if(i < locations.size())
-          m_DescriptorThumbUpdates[i].slotName = locations[i].logicalBindName;
+          m_DescriptorThumbUpdates[i].slotName = QString(locations[i].logicalBindName);
       }
 
       GUIInvoke::call(this, [this]() {
@@ -4539,10 +4539,10 @@ QList<QDir> TextureViewer::getShaderDirectories() const
 {
   QList<QDir> dirs;
   dirs.reserve(int(m_Ctx.Config().TextureViewer_ShaderDirs.size() + 1u));
-  dirs.append(QDir(ConfigFilePath(QString())));
+  dirs.append(QDir{QString(ConfigFilePath())});
   for(const rdcstr &dir : m_Ctx.Config().TextureViewer_ShaderDirs)
   {
-    dirs.append(QDir(dir));
+    dirs.append(QDir{QString(dir)});
   }
 
   return dirs;
@@ -4650,7 +4650,7 @@ void TextureViewer::on_customCreate_clicked()
     src = tr("Unknown format - no template available");
   }
 
-  QString path = QDir::cleanPath(QDir(ConfigFilePath(QString())).absoluteFilePath(filename));
+  QString path = QString(ConfigFilePath(filename));
   QFile fileHandle(path);
   if(fileHandle.open(QFile::WriteOnly | QIODevice::Truncate | QIODevice::Text))
   {

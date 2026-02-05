@@ -132,7 +132,7 @@ QSize RDPreviewTooltip::configureTip(QWidget *widget, QModelIndex idx, QString t
   ResourceId id = pipe->updateThumbnail(widget, idx);
   if(id != ResourceId())
   {
-    title->setText(m_Ctx.GetResourceName(id));
+    title->setText(QString(m_Ctx.GetResourceName(id)));
     title->show();
   }
   else
@@ -419,7 +419,7 @@ QXmlStreamWriter *PipelineStateViewer::beginHTMLExport()
         xml.writeAttribute(lit("lang"), lit("en"));
 
         QString title = tr("%1 EID %2 - %3 Pipeline export")
-                            .arg(QFileInfo(m_Ctx.GetCaptureFilename()).fileName())
+                            .arg(QFileInfo(QString(m_Ctx.GetCaptureFilename())).fileName())
                             .arg(m_Ctx.CurEvent())
                             .arg(GetCurrentAPI());
 
@@ -884,7 +884,7 @@ QString PipelineStateViewer::GenerateHLSLStub(const ShaderReflection *shaderDeta
   {
     if(!cbuf.name.isEmpty() && !cbuf.variables.isEmpty())
     {
-      QString cbufName = cbuf.name;
+      QString cbufName = QString(cbuf.name);
       if(cbufName == lit("$Globals"))
         cbufName = lit("_Globals");
       cbuffers += lit("cbuffer %1 : register(b%2) {\n").arg(cbufName).arg(cbuf.fixedBindNumber);
@@ -984,7 +984,7 @@ IShaderViewer *PipelineStateViewer::EditOriginalShaderSource(ResourceId id,
 
     const ShaderSourceFile &s = shaderDetails->debugInfo.files[idx];
 
-    QString filename = s.filename;
+    QString filename = QString(s.filename);
 
     uint filenameHash = qHash(filename.toLower());
 

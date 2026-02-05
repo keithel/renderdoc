@@ -136,7 +136,7 @@ public:
 
       const CounterDescription &cd = m_Descriptions[section - 1];
 
-      QString unit = QString::null;
+      QString unit;
       switch(cd.unit)
       {
         case CounterUnit::Bytes: unit = lit("bytes"); break;
@@ -145,7 +145,7 @@ public:
 
         case CounterUnit::Percentage: unit = lit("%"); break;
 
-        case CounterUnit::Seconds: unit = UnitSuffix(m_TimeUnit); break;
+        case CounterUnit::Seconds: unit = QString(UnitSuffix(m_TimeUnit)); break;
 
         case CounterUnit::Absolute:
         case CounterUnit::Ratio: break;

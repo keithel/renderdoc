@@ -517,7 +517,7 @@ void CrashDialog::sendReport()
     {
       BugReport bug;
       bug.reportId = m_ReportID;
-      QString url = bug.URL();
+      QString url = QString(bug.URL());
 
       text +=
           tr("<p>The unique anonymous URL for your report is <a href=\"%1\">%1</a>.</p>").arg(url);

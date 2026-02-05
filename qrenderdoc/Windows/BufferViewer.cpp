@@ -664,7 +664,7 @@ struct BufferConfiguration
   QString columnName(int col) const
   {
     if(col >= 0 && col < columns.count())
-      return columns[col].name;
+      return QString(columns[col].name);
 
     return QString();
   }
@@ -2009,7 +2009,7 @@ static void RT_FetchMeshPipeData(IReplayController *r, ICaptureContext &ctx, Pop
     data->out1Config.buffers.push_back(postts);
   }
 
-  data->out1Config.statusString = data->postOut1.status;
+  data->out1Config.statusString = QString(data->postOut1.status);
 
   if(data->out2Config.indices)
     data->out2Config.indices->deref();
@@ -2055,7 +2055,7 @@ static void RT_FetchMeshPipeData(IReplayController *r, ICaptureContext &ctx, Pop
   data->out2Config.perPrimitiveOffset = data->postOut2.perPrimitiveOffset;
   data->out2Config.perPrimitiveStride = data->postOut2.perPrimitiveStride;
 
-  data->out2Config.statusString = data->postOut2.status;
+  data->out2Config.statusString = QString(data->postOut2.status);
 }
 
 static void RT_FetchVertexPipeData(IReplayController *r, ICaptureContext &ctx,
@@ -2239,7 +2239,7 @@ static void RT_FetchVertexPipeData(IReplayController *r, ICaptureContext &ctx,
     data->out1Config.unclampedNumRows = data->inConfig.unclampedNumRows;
   }
 
-  data->out1Config.statusString = data->postOut1.status;
+  data->out1Config.statusString = QString(data->postOut1.status);
 
   data->out1Config.baseVertex = data->postOut1.baseVertex;
   data->out1Config.displayBaseVertex = data->inConfig.baseVertex;
@@ -2296,7 +2296,7 @@ static void RT_FetchVertexPipeData(IReplayController *r, ICaptureContext &ctx,
     data->out1Config.buffers.push_back(postvs);
   }
 
-  data->out2Config.statusString = data->postOut2.status;
+  data->out2Config.statusString = QString(data->postOut2.status);
 
   data->out2Config.numRows = data->postOut2.numIndices;
   data->out2Config.unclampedNumRows = 0;
@@ -5159,7 +5159,7 @@ void BufferViewer::ViewBuffer(uint64_t byteOffset, uint64_t byteSize, ResourceId
 
   m_PagingByteOffset = 0;
 
-  ui->formatSpecifier->setAutoFormat(format);
+  ui->formatSpecifier->setAutoFormat(QString(format));
 }
 
 BufferViewer *BufferViewer::HasCBufferView(ShaderStage stage, uint32_t slot, uint32_t idx)
@@ -5238,7 +5238,7 @@ void BufferViewer::ViewTexture(ResourceId id, const Subresource &sub, const rdcs
 
   m_PagingByteOffset = 0;
 
-  ui->formatSpecifier->setAutoFormat(format);
+  ui->formatSpecifier->setAutoFormat(QString(format));
 }
 
 void BufferViewer::ScrollToRow(int32_t row, MeshDataStage stage)
@@ -5536,7 +5536,7 @@ void BufferViewer::updateLabelsAndLayout()
       if(bufName.isEmpty())
       {
         if(m_BufferID != ResourceId())
-          bufName = m_Ctx.GetResourceName(m_BufferID);
+          bufName = QString(m_Ctx.GetResourceName(m_BufferID));
         else
           bufName = tr("Unbound");
       }
@@ -5557,7 +5557,7 @@ void BufferViewer::updateLabelsAndLayout()
     }
     else
     {
-      setWindowTitle(m_Ctx.GetResourceName(m_BufferID) + lit(" - Contents"));
+      setWindowTitle(QString(m_Ctx.GetResourceName(m_BufferID)) + lit(" - Contents"));
     }
   }
 }
@@ -6111,13 +6111,13 @@ void BufferViewer::on_setFormat_toggled(bool checked)
 
   if(IsD3D(m_Ctx.APIProps().pipelineType))
     ui->formatSpecifier->setAutoFormat(BufferFormatter::DeclareStruct(
-        Packing::D3DCB, reflection->resourceId, reflection->constantBlocks[m_CBufferSlot.slot].name,
+        Packing::D3DCB, reflection->resourceId, QString(reflection->constantBlocks[m_CBufferSlot.slot].name),
         reflection->constantBlocks[m_CBufferSlot.slot].variables, 0));
   else
     ui->formatSpecifier->setAutoFormat(BufferFormatter::DeclareStruct(
         BufferFormatter::EstimatePackingRules(
             reflection->resourceId, reflection->constantBlocks[m_CBufferSlot.slot].variables),
-        reflection->resourceId, reflection->constantBlocks[m_CBufferSlot.slot].name,
+        reflection->resourceId, QString(reflection->constantBlocks[m_CBufferSlot.slot].name),
         reflection->constantBlocks[m_CBufferSlot.slot].variables, 0));
 }
 

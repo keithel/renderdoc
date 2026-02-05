@@ -76,7 +76,7 @@ void ReplayManager::DeleteCapture(const rdcstr &capture, bool local)
 
   if(local)
   {
-    QFile::remove(capture);
+    QFile::remove(QString(capture));
   }
   else
   {
@@ -253,7 +253,7 @@ void ReplayManager::AsyncInvoke(const rdcstr &tag, ReplayManager::InvokeCallback
 
   if(!tag.empty())
   {
-    qtag = tag;
+    qtag = QString(tag);
 
     QMutexLocker autolock(&m_RenderLock);
     for(int i = 0; i < m_RenderQueue.count();)
