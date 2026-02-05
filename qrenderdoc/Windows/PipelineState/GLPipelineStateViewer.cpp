@@ -3939,7 +3939,7 @@ void GLPipelineStateViewer::exportHTML(QXmlStreamWriter &xml, const GLPipe::Fram
                              {
                                  tr("Read Buffer"),
                              },
-                             {fb.readFBO.readBuffer});
+                             QVariantList{fb.readFBO.readBuffer});
   }
 }
 
