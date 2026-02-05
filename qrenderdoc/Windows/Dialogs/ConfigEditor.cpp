@@ -419,8 +419,8 @@ void SettingDelegate::paint(QPainter *painter, const QStyleOptionViewItem &optio
       int size = m_Editor->style()->pixelMetric(QStyle::PM_SmallIconSize, 0, m_Editor);
 
       buttonOpt.iconSize = QSize(size, size);
-      buttonOpt.subControls = 0;
-      buttonOpt.activeSubControls = 0;
+      buttonOpt.subControls = {};
+      buttonOpt.activeSubControls = {};
       buttonOpt.features = QStyleOptionToolButton::None;
       buttonOpt.arrowType = Qt::NoArrow;
       buttonOpt.state = QStyle::State_Active | QStyle::State_Enabled | QStyle::State_AutoRaise;
