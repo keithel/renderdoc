@@ -501,7 +501,7 @@ struct BufferData
 {
   BufferData()
   {
-    refcount.store(1);
+    refcount.storeRelaxed(1);
     stride = 0;
   }
 
