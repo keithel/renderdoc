@@ -895,8 +895,8 @@ void RDTreeWidget::itemDataChanged(RDTreeWidgetItem *item, int column, int role)
     if(m_lowestIndex.first == -1)
     {
       m_queuedItem = item;
-      m_lowestIndex = qMakePair<int, int>(row, 0);
-      m_highestIndex = qMakePair<int, int>(m_lowestIndex.first, m_headers.count() - 1);
+      m_lowestIndex = qMakePair(row, 0);
+      m_highestIndex = qMakePair(m_lowestIndex.first, m_headers.count() - 1);
     }
     else
     {
