@@ -272,7 +272,9 @@ protected:
 
   bool lessThan(const QModelIndex &left, const QModelIndex &right) const override
   {
-    return sourceModel()->data(left, SortDataRole) < sourceModel()->data(right, SortDataRole);
+    QVariant leftData = sourceModel()->data(left, SortDataRole);
+    QVariant rightData = sourceModel()->data(right, SortDataRole);
+    return (QVariant::compare(leftData, rightData) == QPartialOrdering::Less);
   }
 
 private:
