@@ -357,7 +357,7 @@ public:
           break;
         case Qt::TextAlignmentRole:
           if(index.column() == 1)
-            return Qt::AlignRight;
+            return Qt::Alignment(Qt::AlignRight).toInt();
           break;
         case FileIsDirRole: return bool(node->file.flags & PathProperty::Directory);
         case FileIsHiddenRole: return bool(node->file.flags & PathProperty::Hidden);

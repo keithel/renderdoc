@@ -187,8 +187,8 @@ public:
       {
         Qt::Alignment align = widget->m_alignments[index.column()];
 
-        if(align != 0)
-          return QVariant(align);
+        if(align)
+          return QVariant(align.toInt());
       }
     }
     else if(role == Qt::DecorationRole)

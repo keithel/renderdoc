@@ -744,7 +744,7 @@ struct EventItemModel : public QAbstractItemModel
     }
 
     if(index.column() == COL_DURATION && role == Qt::TextAlignmentRole)
-      return int(Qt::AlignRight | Qt::AlignVCenter);
+      return Qt::Alignment(Qt::AlignRight | Qt::AlignVCenter).toInt();
 
     if(index.internalId() == TagRoot)
     {

@@ -174,9 +174,9 @@ public:
       if(role == Qt::TextAlignmentRole)
       {
         if(col == 0)
-          return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
+          return Qt::Alignment(Qt::AlignLeft | Qt::AlignVCenter).toInt();
         else
-          return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+          return Qt::Alignment(Qt::AlignRight | Qt::AlignVCenter).toInt();
       }
 
       if((role == Qt::DisplayRole && col == 0) || role == EIDRole)

@@ -251,7 +251,7 @@ public:
       }
       else if(role == Qt::TextAlignmentRole && col == Column_ResetButton)
       {
-        return Qt::AlignHCenter + Qt::AlignTop;
+        return Qt::Alignment(Qt::AlignHCenter | Qt::AlignTop).toInt();
       }
       else if(role == Qt::ToolTipRole)
       {
